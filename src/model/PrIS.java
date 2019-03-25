@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import model.klas.Klas;
@@ -126,18 +127,20 @@ public class PrIS {
 		String csvFile = "././CSV/docenten.csv";
 		BufferedReader br = null;
 		String line = "";
-		String cvsSplitBy = ",";
+		String cvsSplitBy = ";";
+		System.out.println(line);
 
 		try {
 
 			br = new BufferedReader(new FileReader(csvFile));
 			while ((line = br.readLine()) != null) {
-				// use comma as separator
+				// use ";" as separator -> new csv files are incorrect.
 				String[] element = line.split(cvsSplitBy);
 				String gebruikersnaam = element[0].toLowerCase();
 				String voornaam = element[1];
 				String tussenvoegsel = element[2];
 				String achternaam = element[3];
+				String naamtest = voornaam +" "+ tussenvoegsel +" "+ achternaam;
 				pDocenten.add(new Docent(voornaam, tussenvoegsel, achternaam, "geheim", gebruikersnaam, 1));
 			}
 
@@ -185,7 +188,7 @@ public class PrIS {
 			String csvFile = "././CSV/" + k.getNaam() + ".csv";
 			BufferedReader br = null;
 			String line = "";
-			String cvsSplitBy = ",";
+			String cvsSplitBy = ";";
 
 			try {
 
