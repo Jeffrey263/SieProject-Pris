@@ -146,6 +146,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>(test) Instellen systeemdatum</span>
           </a>
 
+          <a name="my-docentenpagina" href$="[[_c_baseURL]]my-docentenpagina" >
+              <iron-icon icon="icons:today"></iron-icon>
+              <span>Docenten pagina</span>
+            </a>
+
           <a name="login" href$="[[_c_baseURL]]login"  verborgen$="[[!_are_strings_equal(_rol, 'undefined')]]">
             <iron-icon icon="account-box"></iron-icon>
             <span>Inloggen</span>
@@ -211,6 +216,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 systeemdatumstandaard="{{_systeemdatumstandaard}}"
                 c_visible="[[_are_strings_equal(_ar_page, 'systeem_instellen_systeemdatum')]]">
               </my-systeemdatum>
+            </paper-material>
+          </section>
+          
+          <section page-name="docentenpagina"
+              	   title="DOCENT"
+              	   element$="my-docentenpagina">
+            <paper-material elevation="1" style="max-width: 380px;">'
+              <my-docentenpagina></my-docentenpagina>
             </paper-material>
           </section>
 
