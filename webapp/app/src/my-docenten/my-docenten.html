@@ -1,4 +1,15 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+<link rel="import" href="../shared-styles/shared-styles.html">
+<link rel="import" href="../my-app/elements.html"> <!-- gewijzigd tov PSK -->
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+
 <!-- Dit element wordt door de aanwezigheid van de c_visible parameter steeds opnieuw gerefreshed
      op het moment dat het element in de iron-pages geselecteerd wordt
      en ook zodra hij weer gedeselecteerd wordt.
@@ -12,15 +23,58 @@
 
 <dom-module id="my-docenten">
   <template>
-    <style>
+    <style include="shared-styles">
+        :host {
+            display: block;
+            width: 900px;
+            padding: 10px;
+        }     
     </style>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
-    <h1>Docenten pagina</h1>
-    </div>
 
+    <div>
+        <h1>Docenten pagina</h1>
+        <p> x-=-=-=Docenten pagina is tijdelijk toegankelijk voor iedereen=-=-=-x</p>
+
+        <paper-dropdown-menu label="Klas">
+            <paper-listbox slot="dropdown-content" selected="0">
+                <paper-item>V1A</paper-item>
+                <paper-item>V1B</paper-item>
+                <paper-item>V1C</paper-item>
+                <paper-item>V1D</paper-item>
+            </paper-listbox>
+        </paper-dropdown-menu>
+        
+        <!-- <div class="card" id="bovenBalk" style="height: 25px">
+        <h>naam Leerling</h>
+        <h style="float: right">aanwezigheid</h>
+        </div> -->
+
+        <!-- Deze klasse moet het aantal keer herhaald worden als dat er leerlingen zijn. met JS magie. -->
+        <!-- <div class="card" id="leerling" style="height: 45px">
+                <iron-icon icon="account-box" style="margin-right: 10px; height: 50px; width: 50px"> </iron-icon>
+                <h>{{leerlingen}}</h>
+                <paper-button style="float: right; background-color: rgb(100, 0, 0)"><iron-icon icon="icons:clear" style="color: aliceblue"></iron-icon></paper-button>
+                <paper-button style="float: right; background-color: darkgreen"><iron-icon icon="icons:check" style="color: aliceblue"></iron-icon></paper-button>
+        </div> -->
+
+
+        <!-- !! lijst van leerlingen !! -->
+        <iron-list items="[[leerlingen]]" as="item" style="height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+                <template>
+                  <div class="card" style="width: 700px; padding: 10px;">
+                        <iron-icon icon="account-box" style="margin-right: 10px; height: 50px; width: 50px"> </iron-icon>
+                        <h>[[item.name]]</h>
+                        <paper-button style="float: right; background-color: rgb(100, 0, 0)"><iron-icon icon="icons:clear" style="color: aliceblue"></iron-icon></paper-button>
+                        <paper-button style="float: right; background-color: darkgreen"><iron-icon icon="icons:check" style="color: aliceblue"></iron-icon></paper-button>
+                  </div>
+                </template>
+        </iron-list>
+
+        <paper-button>naar statestiek</paper-button>
+    </div>  
   </template>
 
   <script>
@@ -33,6 +87,31 @@
       */
       Polymer({
         is: 'my-docenten',
+
+        get properties(){
+        return{
+            leerlingen:{
+                type: Array,
+                notify: true,
+                value: [
+                         {"name": "Jeffrey van Es"},
+                         {"name": "Timo van Dijk"},
+                         {"name": "Leon van der Heiden"},
+                         {"name": "Soerano Tjaris"},
+                         {"name": "Clijmart"},
+                         {"name": "Max Bressers"},
+                         {"name": "Kees"},
+                         {"name": "Lids"},
+                ]
+            },
+
+          naam:{
+            type: String,
+            value: "Jeffrey van Es",
+            notify: true
+          }
+        };
+      }
       });
     })();
   </script>
