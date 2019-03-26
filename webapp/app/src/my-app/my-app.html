@@ -74,6 +74,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: none;							/* onzichtbaar maken                */
       }
 
+
       paper-material {
         padding: 16px 16px 16px  16px;
         width: calc(98% - 132px);
@@ -136,25 +137,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <app-toolbar class="toolbar">
           <img id="toolbarlogo" src="../../images/hu_logo2.png" alt="HU" />
         </app-toolbar>
+
+
         <iron-selector selected="[[_ar_page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+        
+          <!-- altijd beschikbaar /EIGEN COMPONENTS-->
+          <a name="my_test_page" href$="[[_c_baseURL]]my_test_page" >
+              <iron-icon icon="icons:today"></iron-icon>
+              <span>Testpagina</span>
+          </a>
+
           <a name="home" href$="[[_c_baseURL]]">
             <iron-icon icon="home"></iron-icon>
             <span>Home</span>
           </a>
 
+          <hr>
 
-
-          <!-- altijd beschikbaar /EIGEN COMPONENTS-->
-          <a name="my_test_page" href$="[[_c_baseURL]]my_test_page" >
-              <iron-icon icon="icons:today"></iron-icon>
-              <span>Testpagina</span>
-            </a>
-
-                <!-- Deze pagina is voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten. -->
+          <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
           <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" >
               <iron-icon icon="icons:today"></iron-icon>
               <span>Docenten</span>
-            </a>
+          </a>
+
+          <hr>
+
+          <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" >
+              <iron-icon icon="icons:today"></iron-icon>
+              <span>Studentenrooster</span>
+          </a>
+
+          <hr>
 
           <!-- altijd beschikbaar -->
           <a name="systeem_instellen_systeemdatum" href$="[[_c_baseURL]]systeem_instellen_systeemdatum" >
@@ -211,12 +224,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </paper-material>
         </section>
 
-              <!-- Deze pagina is voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten. -->
+        <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
         <section page-name="my_docenten" title="DOCENTEN" element$="my-docenten">
           <paper-material elevation="1">
           <my-docenten></my-docenten>
           </paper-material>
         </section>
+
+        <section page-name="my_student_rooster" title="ROOSTER" element$="my-student-rooster">
+            <paper-material elevation="1">
+            <my-student-rooster></my-student-rooster>
+            </paper-material>
+          </section>
+
+
         <!-- element$="none" of weglaten van element$ geeft beide aan dat er geen polymerElement gebruikt zal gaan worden -->
         <section page-name="home" title="HOME" element$="none">
           <paper-material elevation="1">

@@ -1,0 +1,71 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<!-- Dit element wordt door de aanwezigheid van de c_visible parameter steeds opnieuw gerefreshed
+     op het moment dat het element in de iron-pages geselecteerd wordt
+     en ook zodra hij weer gedeselecteerd wordt.
+     Deze techniek is bruikbaar om volatile info steeds opnieuw op te halen en niet enkel eenmalig
+     bij start van de applicatie
+-->
+
+<!--  externe afhankelijkheid:
+      standaarddatumstring_to_lokaledatumstring (zie <my-app>)
+-->
+
+<dom-module id="my-student-rooster">
+  <template>
+    <style>
+        :host {
+            display: block;
+            padding: 10px;
+        }
+        .my-button {
+        width: 100%;
+        color: white;
+        background: #1a9fd9;
+        --paper-button-ink-color: #00567B;
+        margin-top: 5px;
+      }
+    </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <div class="card">
+            <h1>Rooster</h1>
+            <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
+            <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{gerechteninfo}}" selected-items="{{selectedItems}}" active-item="{{selectedItem}}" column-rendering-allowed multi-sort>
+                <vaadin-grid-selection-column auto-select></vaadin-grid-selection-column>  
+              <vaadin-grid-column>
+                  <template class="header">
+                    <vaadin-grid-sorter path="">Rooster</vaadin-grid-sorter>
+                  </template>
+                  <template>
+                      <paper-input readonly value=""></paper-input>
+                  </template>
+                </vaadin-grid-column>     
+              </vaadin-grid>
+              <br>
+              <paper-button class="my-button" raised on-click="verwijderen">Insturen</paper-button>
+        </div>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+      /* _xxxx private              : geen external data binding      - geen notify
+         _c_xx private constant     : geen external binding, constant - geen notify
+         c_xx  public constant      : one way external databinding [[c_xx]] - geen notify nodig
+         xxxx  public               : two way external databinding {{xxxx}} - notify nodig
+      */
+      Polymer({
+        is: 'my-student-rooster',
+      });
+    })();
+  </script>
+</dom-module>
