@@ -143,6 +143,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Home</span>
           </a>
 
+
+
+          <!-- altijd beschikbaar /EIGEN COMPONENTS-->
+          <a name="my_test_page" href$="[[_c_baseURL]]my_test_page" >
+              <iron-icon icon="icons:today"></iron-icon>
+              <span>Testpagina</span>
+            </a>
+
           <!-- altijd beschikbaar -->
           <a name="systeem_instellen_systeemdatum" href$="[[_c_baseURL]]systeem_instellen_systeemdatum" >
             <iron-icon icon="icons:today"></iron-icon>
@@ -191,6 +199,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         -->
 
         <!-- sections voor iedereen -->
+
+        <section page-name="my_test_page" title="TEST" element$="my-test-page">
+              <paper-material elevation="1">
+              <my-test-page></my-test-page>
+              </paper-material>
+        </section>
         <!-- element$="none" of weglaten van element$ geeft beide aan dat er geen polymerElement gebruikt zal gaan worden -->
         <section page-name="home" title="HOME" element$="none">
           <paper-material elevation="1">
