@@ -146,11 +146,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>(test) Instellen systeemdatum</span>
           </a>
 
-          <a name="my-docentenpagina" href$="[[_c_baseURL]]my-docentenpagina" >
-              <iron-icon icon="icons:today"></iron-icon>
-              <span>Docenten pagina</span>
-            </a>
-
           <a name="login" href$="[[_c_baseURL]]login"  verborgen$="[[!_are_strings_equal(_rol, 'undefined')]]">
             <iron-icon icon="account-box"></iron-icon>
             <span>Inloggen</span>
@@ -162,11 +157,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </a>
 
           <!-- beschikbaar voor docent -->
+          <a name="my_docentenpagina" href$="[[_c_baseURL]]my_docentenpagina" verborgen$="[[_are_strings_equal(_rol, 'docent')]]">
+            <iron-icon icon="icons:today"></iron-icon>
+            <span>Docenten pagina</span>
+          </a>
 
           <!-- beschikbaar voor student -->
           <a name="student_medestudenten" href$="[[_c_baseURL]]student_medestudenten"  verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
             <iron-icon icon="social:group"></iron-icon>
             <span>Toon medestudenten</span>
+          </a>
+
+          <a name="my_leerling_rooster" href$="[[_c_baseURL]]my_leerling_rooster"  verborgen$="[[!_are_strings_equal(_rol, 'undefined')]]">
+              <iron-icon icon="social:group"></iron-icon>
+              <span>Toon rooster</span>
           </a>
 
         </iron-selector>
@@ -218,14 +222,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </my-systeemdatum>
             </paper-material>
           </section>
-          
-          <section page-name="docentenpagina"
-              	   title="DOCENT"
-              	   element$="my-docentenpagina">
-            <paper-material elevation="1" style="max-width: 380px;">'
-              <my-docentenpagina></my-docentenpagina>
-            </paper-material>
-          </section>
 
           <section page-name="login"
               	   title="LOGIN"
@@ -244,6 +240,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
 
 <!-- sections voor docent -->
+          <section page-name="my_docentenpagina"
+                  title="DOCENTEN PAGINA"
+                  element$="my-docentenpagina">
+            <paper-material elevation="1" style="max-width: 380px;">'
+              <my-docentenpagina></my-docentenpagina>
+            </paper-material>
+          </section>
 
  <!-- sections voor student -->
           <section  page-name="student_medestudenten"
@@ -270,6 +273,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div>This is [[_ar_subsubroute_data.subsubpage]]'s section</div>
             </paper-material>
           </section>
+
+          <section page-name="my_leerling_rooster"
+                    title="TEST"
+                    element$="my-leerling-rooster">
+            <paper-material elevation="1">
+              <my-leerling-rooster></my-leerling-rooster>
+            </paper-material>
+          </section>
+
 
           <section page-name="view404"
                     title="PAGE NOT FOUND"

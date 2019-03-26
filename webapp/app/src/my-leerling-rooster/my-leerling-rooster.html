@@ -1,21 +1,58 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
 
 <dom-module id="my-leerling-rooster">
-    <template>
-        <style>
-        </style>
-    <h2>Leerling Rooster.</h2>
-    </template>
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        --paper-radio-button-unchecked-color: black;
+        --paper-radio-button-checked-color: #cc0000;
+        --paper-input-container-focus-color:#cc0000;
 
-    <script>
-        class MyLeerlingRooster extends Polymer.Element {
-            static get is() { return 'my-leerling-rooster'}
-            static get properties() {
-                return {
-                }
-            }
+        padding: 10px;
+      }
+
+      .inline {
+        display:inline;
+      }
+
+      .bestelbaar {
+        background-color: #cc0000;
+        color:white;
+        width:45%;
+        max-width: 200px;
+        margin:5px;
+        box-sizing: border-box;
+      }
+
+      .toevoegen {
+        max-width: 200px;
+      }
+    </style>
+
+    <div class="card" class="toevoegen">
+      <h1>Gerecht toevoegen</h1>
+      <p>Hier kunt u een gerecht toevoegen aan het systeem.</p>
+    </div>
+  </template>
+
+  <script>
+    class MyLeerlingRooster extends Polymer.Element {
+      static get is() { return 'my-leerling-rooster'; }
+      static get properties() {
+        return {
+          bestelbaar: {
+            type:String,
+            value:"true"
+          }
         }
-    
-        window.customElements.define(MyLeerlingRooster.is, MyLeerlingRooster)
-    </script>
+      }
+    }
+
+    window.customElements.define(MyLeerlingRooster.is, MyLeerlingRooster);
+  </script>
 </dom-module>
