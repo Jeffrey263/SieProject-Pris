@@ -160,6 +160,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <span>Docenten</span>
           </a>
 
+          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" >
+            <iron-icon icon="icons:build"></iron-icon>
+            <span>[temp] Docenten overzicht</span>
+          </a>
+
           <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" >
             <iron-icon icon="icons:accessibility"></iron-icon>
             <span>Statistiekdocenten</span>
@@ -234,6 +239,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <my-docenten></my-docenten>
           </paper-material>
         </section>
+
+        <section page-name="temp_docent_overzicht" title="DOCENTEN-OVERZICHT" element$="temp-docent-overzicht">
+            <paper-material elevation="1">
+            <temp-docent-overzicht></temp-docent-overzicht>
+            </paper-material>
+          </section>
 
         <section page-name="my_statistiek_docenten" title="DOCENTEN-STAT" element$="my-statistiek-docenten">
           <paper-material elevation="1">

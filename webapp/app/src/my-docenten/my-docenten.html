@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
@@ -37,37 +38,47 @@
     <div>
         <h1>Docenten pagina</h1>
 
-        <select name="Klas:" style="height: 20px; border: 1px; background-color: transparent; border-bottom: 2px solid dodgerblue">
-            <option value="V1A">V1A</option>
-            <option value="V1B">V1B</option>
-            <option value="V1C">V1C</option>
-            <option value="V1D">V1D</option>
-            <option value="V1E">V1E</option>
-            <option value="V1F">V1F</option>
-            <option value="V1G">V1G</option>
-            <option value="V1H">V1H</option>
-            <option value="V1I">V1I</option>
-          </select>
+        <paper-dropdown-menu label="Klas" noink no-animations>
+          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
+            <paper-item>V1A</paper-item>
+            <paper-item>V1B</paper-item>
+            <paper-item>V1C</paper-item>
+            <paper-item>V1D</paper-item>
+            <paper-item>V1E</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <paper-dropdown-menu label="Les" noink no-animations style="margin-left: 14px">
+          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
+            <paper-item>OODC-20-3-2019</paper-item>
+            <paper-item>AUI-20-3-2019</paper-item>
+            <paper-item>OODC-25-3-2019</paper-item>
+            <paper-item>AUI-25-3-2019</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
         
         <!-- !! lijst van leerlingen !! -->
-        <iron-list items="[[leerlingen]]" as="item" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <iron-list items="[[leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
                 <template>
                   <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
-                        <iron-icon icon="account-box" style="margin-right: 10px; height: 50px; width: 50px"> </iron-icon>
-                        <h>[[item.name]]</h>
-                        <select name="Klas:" style="float: right; height: 20px; border: 1px; background-color: transparent; border-bottom: 2px solid dodgerblue">
-                            <option value="V1A">Aanwezig</option>
-                            <option value="V1B">Afwezig</option>
-                          </select>
-                        <!-- <paper-button style="float: right; background-color: rgb(100, 0, 0)"><iron-icon icon="icons:clear" style="color: aliceblue"></iron-icon></paper-button>
-                        <paper-button style="float: right; background-color: darkgreen"><iron-icon icon="icons:check" style="color: aliceblue"></iron-icon></paper-button> -->
+                        <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
+                        <h style="font-size: 15px; margin-bottom: 20px">[[leerling.name]], [[leerling.StudentNummer]]</h>
+                        <!-- <paper-input label="aanwezigheid" value="{{leerling.aanwezig}}" style="width: 80px"></paper-input> -->
+                        <paper-dropdown-menu label="aanwezigheid" noink no-animations style="float: right">
+                          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezig}}" attr-for-selected="data-item">
+                            <paper-item data-item="Aanwezig">Aanwezig</paper-item>
+                            <paper-item data-item="Ziek / afwezig met reden">Ziek / afwezig met reden</paper-item>
+                            <paper-item data-item="Afwezig zonder reden" style="color: red">Afwezig zonder reden</paper-item>
+                          </paper-listbox>
+                        </paper-dropdown-menu><br>
                         <!-- <h style="float: right">Aanwezig: [[item.aanwezig]]</h> -->
                   </div>
                 </template>
         </iron-list>
-        <paper-button>Opslaan</paper-button>
+        <paper-button raised on-click="opslaanHandler">Opslaan</paper-button>
         <paper-button>naar statestiek</paper-button>
-    </div>  
+    </div> 
+    <app-localstorage-document key="leerlingen" data="{{leerlingen}}"></app-localstorage-document> 
   </template>
 
   <script>
@@ -87,14 +98,23 @@
                 type: Array,
                 notify: true,
                 value: [
-                         {"name": "Jeffrey van Es", "aanwezig":"true"},
-                         {"name": "Timo van Dijk", "aanwezig":"true"},
-                         {"name": "Leon van der Heiden", "aanwezig":"true"},
-                         {"name": "Soerano Tjaris", "aanwezig":"true"},
-                         {"name": "Clijmart", "aanwezig":"true"},
-                         {"name": "Max Bressers", "aanwezig":"true"},
-                         {"name": "Kees", "aanwezig":"true"},
-                         {"name": "Lida", "aanwezig":"true"},
+                         {"name": "Jeffrey van Es", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Timo van Dijk", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Leon van der Heiden", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Soerano Tjaris", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Andre de koning", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Rick van Tol", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Thom van bemmelen", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Charlotte Weinands", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Mathijs Slappendel", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Ronin van der Werke", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Rik Vermeer", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Bradley Oiendijk", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Mijke de Jong", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Clijmart", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Max Bressers", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Kees", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
+                         {"name": "Lida", "StudentNummer":"17026814", "aanwezig":"Aanwezig"},
                 ]
             },
 
@@ -104,7 +124,12 @@
             notify: true
           }
         };
+      },
+
+      opslaanHandler(){ 
+        this.push("leerlingen",null);
       }
+
       });
     })();
   </script>
