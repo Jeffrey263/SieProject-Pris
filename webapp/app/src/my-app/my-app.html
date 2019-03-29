@@ -143,7 +143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
           <!-- altijd beschikbaar /EIGEN COMPONENTS-->
           <a name="my_test_page" href$="[[_c_baseURL]]my_test_page" >
-              <iron-icon icon="icons:today"></iron-icon>
+              <iron-icon icon="icons:build"></iron-icon>
               <span>Testpagina</span>
           </a>
 
@@ -156,10 +156,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
           <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" >
-              <iron-icon icon="icons:today"></iron-icon>
+              <iron-icon icon="icons:accessibility"></iron-icon>
               <span>Docenten</span>
           </a>
 
+          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" >
+            <iron-icon icon="icons:build"></iron-icon>
+            <span>[temp] Docenten overzicht</span>
+          </a>
+
+          <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" >
+            <iron-icon icon="icons:accessibility"></iron-icon>
+            <span>Statistiekdocenten</span>
+          </a>
           <hr>
 
           <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" >
@@ -233,6 +242,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section page-name="my_docenten" title="DOCENTEN" element$="my-docenten">
           <paper-material elevation="1">
           <my-docenten></my-docenten>
+          </paper-material>
+        </section>
+
+        <section page-name="temp_docent_overzicht" title="DOCENTEN-OVERZICHT" element$="temp-docent-overzicht">
+            <paper-material elevation="1">
+            <temp-docent-overzicht></temp-docent-overzicht>
+            </paper-material>
+          </section>
+
+        <section page-name="my_statistiek_docenten" title="DOCENTEN-STAT" element$="my-statistiek-docenten">
+          <paper-material elevation="1">
+          <my-statistiek-docenten></my-statistiek-docenten>
           </paper-material>
         </section>
 
