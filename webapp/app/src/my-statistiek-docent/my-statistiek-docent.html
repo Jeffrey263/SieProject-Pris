@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
@@ -36,45 +37,48 @@
 
     <div>
         <h1>Docenten pagina</h1>
-        <p> x-=-=-=Docenten pagina is tijdelijk toegankelijk voor iedereen=-=-=-x</p>
 
-        <paper-dropdown-menu label="Klas">
-            <paper-listbox slot="dropdown-content" selected="0">
-                <paper-item>V1A</paper-item>
-                <paper-item>V1B</paper-item>
-                <paper-item>V1C</paper-item>
-                <paper-item>V1D</paper-item>
-            </paper-listbox>
+        <paper-dropdown-menu label="Klas" noink no-animations>
+          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
+            <paper-item>V1A</paper-item>
+            <paper-item>V1B</paper-item>
+            <paper-item>V1C</paper-item>
+            <paper-item>V1D</paper-item>
+            <paper-item>V1E</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+
+        <paper-dropdown-menu label="Les" noink no-animations style="margin-left: 14px">
+          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
+            <paper-item>OODC-20-3-2019</paper-item>
+            <paper-item>AUI-20-3-2019</paper-item>
+            <paper-item>OODC-25-3-2019</paper-item>
+            <paper-item>AUI-25-3-2019</paper-item>
+          </paper-listbox>
         </paper-dropdown-menu>
         
-        <!-- <div class="card" id="bovenBalk" style="height: 25px">
-        <h>naam Leerling</h>
-        <h style="float: right">aanwezigheid</h>
-        </div> -->
-
-        <!-- Deze klasse moet het aantal keer herhaald worden als dat er leerlingen zijn. met JS magie. -->
-        <!-- <div class="card" id="leerling" style="height: 45px">
-                <iron-icon icon="account-box" style="margin-right: 10px; height: 50px; width: 50px"> </iron-icon>
-                <h>{{leerlingen}}</h>
-                <paper-button style="float: right; background-color: rgb(100, 0, 0)"><iron-icon icon="icons:clear" style="color: aliceblue"></iron-icon></paper-button>
-                <paper-button style="float: right; background-color: darkgreen"><iron-icon icon="icons:check" style="color: aliceblue"></iron-icon></paper-button>
-        </div> -->
-
-
         <!-- !! lijst van leerlingen !! -->
-        <iron-list items="[[leerlingen]]" as="item" style="height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <iron-list items="[[leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
                 <template>
-                  <div class="card" style="width: 700px; padding: 10px;">
-                        <iron-icon icon="account-box" style="margin-right: 10px; height: 50px; width: 50px"> </iron-icon>
-                        <h>[[item.name]]</h>
-                        <paper-button style="float: right; background-color: rgb(100, 0, 0)"><iron-icon icon="icons:clear" style="color: aliceblue"></iron-icon></paper-button>
-                        <paper-button style="float: right; background-color: darkgreen"><iron-icon icon="icons:check" style="color: aliceblue"></iron-icon></paper-button>
+                  <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
+                        <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
+                        <h style="font-size: 15px; margin-bottom: 20px">[[leerling.name]], [[leerling.StudentNummer]]</h>
+                        <!-- <paper-input label="aanwezigheid" value="{{leerling.aanwezig}}" style="width: 80px"></paper-input> -->
+                        <paper-dropdown-menu label="aanwezigheid" noink no-animations style="float: right">
+                          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezig}}" attr-for-selected="data-item">
+                            <paper-item data-item="Aanwezig">Aanwezig</paper-item>
+                            <paper-item data-item="Ziek / afwezig met reden">Ziek / afwezig met reden</paper-item>
+                            <paper-item data-item="Afwezig zonder reden" style="color: red">Afwezig zonder reden</paper-item>
+                          </paper-listbox>
+                        </paper-dropdown-menu><br>
+                        <!-- <h style="float: right">Aanwezig: [[item.aanwezig]]</h> -->
                   </div>
                 </template>
         </iron-list>
-
+        <paper-button raised on-click="opslaanHandler">Opslaan</paper-button>
         <paper-button>naar statestiek</paper-button>
-    </div>  
+    </div> 
+    <app-localstorage-document key="leerlingen" data="{{leerlingen}}"></app-localstorage-document> 
   </template>
 
   <script>
@@ -90,28 +94,27 @@
 
         get properties(){
         return{
-            leerlingen:{
+            lessen:{
                 type: Array,
                 notify: true,
                 value: [
-                         {"name": "Jeffrey van Es"},
-                         {"name": "Timo van Dijk"},
-                         {"name": "Leon van der Heiden"},
-                         {"name": "Soerano Tjaris"},
-                         {"name": "Clijmart"},
-                         {"name": "Max Bressers"},
-                         {"name": "Kees"},
-                         {"name": "Lids"},
+                         {docent: "alex.jongman@student.hu.nl", startdatum: "2019-02-04", starttijd: "08:30", eindtijd:"11:30", vakcode: "TCIF-V1AUI-17_2018", groepen:"TICT-SIE-V1A"},
+                         {docent: "alex.jongman@student.hu.nl", startdatum: "2019-02-07", starttijd: "08:30", eindtijd:"11:30", vakcode: "TCIF-V1AUI-17_2018", groepen:"TICT-SIE-V1A"},
                 ]
             },
 
           naam:{
             type: String,
-            value: "Jeffrey van Es",
+            value: "alex.jongman@student.hu.nl",
             notify: true
           }
         };
+      },
+
+      opslaanHandler(){ 
+        this.push("leerlingen",null);
       }
+
       });
     })();
   </script>
