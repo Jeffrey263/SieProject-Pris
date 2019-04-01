@@ -28,49 +28,45 @@
     <script>
         Highcharts.setOptions({
                 colors: ['#64FE2E', '#FF8000', '#FF0000']
-            });
-            Highcharts.chart('container1', {
-                chart: {
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false,
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Presentie Student'
-                },
-                tooltip: {
-                    pointFormat: '{presentie.name}: <b>{point.percentage:.1f}%</b>'
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
+        });
+        Highcharts.chart('container1', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {text: 'Presentie Student'},
+            tooltip: {pointFormat: '{presentie.name}: <b>{point.percentage:.1f}%</b>'},
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
                         }
                     }
-                },
-                series: [{
-                    name: 'presentie-chart',
-                    data: [{
-                        name: 'present',
-                        y: 80,
-                        sliced: true,
-                        selected: true
-                    }, {
-                        name: 'geoorloofd absent',
-                        y: 10
-                    }, {
-                        name: 'ongeoorloffd absent',
-                        y: 10
-                    }]
+                }
+            },
+            series: [{
+                name: 'presentie-chart',
+                data: [{
+                    name: 'present',
+                    y: 80,
+                    sliced: true,
+                    selected: true
+                }, {
+                    name: 'geoorloofd absent',
+                    y: 10
+                }, {
+                    name: 'ongeoorloffd absent',
+                    y: 10
                 }]
-            });
+            }]
+        });
         (function () {
             'use strict';
             /* _xxxx private              : geen external data binding      - geen notify
