@@ -1,17 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/webcomponentsjs/webcomponents-lite.js">
-<!-- Dit element wordt door de aanwezigheid van de c_visible parameter steeds opnieuw gerefreshed
-     op het moment dat het element in de iron-pages geselecteerd wordt
-     en ook zodra hij weer gedeselecteerd wordt.
-     Deze techniek is bruikbaar om volatile info steeds opnieuw op te halen en niet enkel eenmalig
-     bij start van de applicatie
--->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
 
-<!--  externe afhankelijkheid:
-      standaarddatumstring_to_lokaledatumstring (zie <my-app>)
--->
-
-<dom-module id="my-test-page">
+<dom-module id="my-student-statistiek">
     <template>
         <style>
         </style>
@@ -19,12 +14,63 @@
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
 
-        <h1>Testpagina</h1>
+        <h1>Statistiek Student</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-md-6">
+                    <div id="container1"></div>
+                </div>
+            </div>
         </div>
 
     </template>
 
     <script>
+        Highcharts.setOptions({
+                colors: ['#64FE2E', '#FF8000', '#FF0000']
+            });
+            Highcharts.chart('container1', {
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Presentie Student'
+                },
+                tooltip: {
+                    pointFormat: '{presentie.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'presentie-chart',
+                    data: [{
+                        name: 'present',
+                        y: 80,
+                        sliced: true,
+                        selected: true
+                    }, {
+                        name: 'geoorloofd absent',
+                        y: 10
+                    }, {
+                        name: 'ongeoorloffd absent',
+                        y: 10
+                    }]
+                }]
+            });
         (function () {
             'use strict';
             /* _xxxx private              : geen external data binding      - geen notify
@@ -33,7 +79,7 @@
                xxxx  public               : two way external databinding {{xxxx}} - notify nodig
             */
             Polymer({
-                is: 'my-test-page',
+                is: 'my-student-statistiek',
             });
         })();
     </script>
