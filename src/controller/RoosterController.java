@@ -24,18 +24,19 @@ public class RoosterController implements Handler{
 	}
 	
 	public void handle(Conversation conversation) {
-		if (conversation.getRequestedURI().startsWith("student/rooster")) {
+		if (conversation.getRequestedURI().startsWith("/student/rooster")) {
 			ophalen(conversation);
 		} 
 	}
 	
 	private void ophalen(Conversation conversation) {
 		JsonObject lJsonObjectIn = (JsonObject) conversation.getRequestBodyAsJSON();
-		String lGebruikersnaam = lJsonObjectIn.getString("username");
-		Student lStudentZelf = informatieSysteem.getStudent(lGebruikersnaam);
-		String  lGroepIdZelf = lStudentZelf.getGroepId();
-		
-		Klas lKlas = informatieSysteem.getKlasVanStudent(lStudentZelf);		// klas van de student opzoeken
+		System.out.println(lJsonObjectIn);
+//		String lGebruikersnaam = lJsonObjectIn.getString("username");
+//		Student lStudentZelf = informatieSysteem.getStudent(lGebruikersnaam);
+//		String  lGroepIdZelf = lStudentZelf.getGroepId();
+//		
+//		Klas lKlas = informatieSysteem.getKlasVanStudent(lStudentZelf);		// klas van de student opzoeken
 		
 		JsonArrayBuilder lJsonArrayBuilder = Json.createArrayBuilder();	
 		JsonObjectBuilder lJsonObjectBuilderVoorStudent = Json.createObjectBuilder(); // maak het JsonObject voor een student

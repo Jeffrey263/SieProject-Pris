@@ -70,7 +70,7 @@
       <iron-ajax
         id="ajax_rooster"
         method="POST"
-        url="/rooster"
+        url="/student/rooster"
         handle-as="json"
         on-response="_ophalen_rooster_response_handler">
       </iron-ajax>
@@ -89,6 +89,12 @@
         is: 'my-student-rooster',
 
         properties: {
+          c_rol: {
+            type: String,
+          },
+          c_username: {
+            type: String,
+          },
           c_visible: {
             type: Boolean,                                      /* true when element is the active visible item */
             value: false,
