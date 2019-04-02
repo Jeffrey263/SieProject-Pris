@@ -52,14 +52,17 @@
         <!-- !! lijst van lessen !! <h1>[[item.docent]] [[naam]]</h1> -->
           <template is="dom-repeat" items="{{rooster}}">
 
-                <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
-                    <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
-                    <h style="font-size: 15px; margin-bottom: 20px">[[item.docent]], [[item.startdatum]]</h>
+                <div class="block" style="width: 200px; height: 200px; padding: 10px; border-bottom: 1px solid grey;">
+                    <div class="block" style="width: 180px; height: 20px; padding: 10px; background-color: white;">
+                        <h style="font-size: 15px; margin-bottom: 20px">[[item.starttijd]] - [[item.eindtijd]]</h>
+                    </div>
+                    <h style="font-size: 15px; margin-bottom: 20px">[[item.docent]]<br>[[item.startdatum]]<br>[[item.vakcode]]<br>Groep: [[item.groepen]]</h>
+                    <br><br>
+                    <paper-button raised on-click="loadHandler">naar statestiek</paper-button>
                 </div>
 
           </template>
-        <paper-button raised on-click="testHandler">Opslaan</paper-button>
-        <paper-button>naar statestiek</paper-button>
+        <paper-button raised on-click="loadHandler">Laad Rooster</paper-button>
     </div> 
     <app-localstorage-document key="rooster" data="{{rooster}}"></app-localstorage-document> 
   </template>
@@ -100,7 +103,7 @@
           }
         };
       },
-      testHandler(){ 
+      loadHandler(){ 
         this.rooster = this.lessen;
         for (var i = this.rooster.length - 1; i >= 0; i--) {
            if (!(this.rooster[i].docent == this.naam)) {
