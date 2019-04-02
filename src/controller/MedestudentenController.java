@@ -33,7 +33,8 @@ public class MedestudentenController implements Handler {
 	public void handle(Conversation conversation) {
 		if (conversation.getRequestedURI().startsWith("/student/medestudenten/ophalen")) {
 			ophalen(conversation);
-		} else {
+		} 
+		if (conversation.getRequestedURI().startsWith("/student/medestudenten/opslaan")) {
 			opslaan(conversation);
 		}
 	}
@@ -45,6 +46,7 @@ public class MedestudentenController implements Handler {
 	 * 
 	 * @param conversation - alle informatie over het request
 	 */
+
 	private void ophalen(Conversation conversation) {
 		JsonObject lJsonObjectIn = (JsonObject) conversation.getRequestBodyAsJSON();
 		String lGebruikersnaam = lJsonObjectIn.getString("username");
@@ -69,7 +71,7 @@ public class MedestudentenController implements Handler {
 					.add("id", lMedeStudent.getStudentNummer())																	//vul het JsonObject		     
 					.add("firstName", lMedeStudent.getVoornaam())	
 					.add("lastName", lLastName)				     
-				  .add("sameGroup", lZelfdeGroep);					     
+					.add("sameGroup", lZelfdeGroep);					     
 			  
 			  lJsonArrayBuilder.add(lJsonObjectBuilderVoorStudent);													//voeg het JsonObject aan het array toe				     
 			}

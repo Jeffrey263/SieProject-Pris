@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <!-- Dit element wordt door de aanwezigheid van de c_visible parameter steeds opnieuw gerefreshed
      op het moment dat het element in de iron-pages geselecteerd wordt
      en ook zodra hij weer gedeselecteerd wordt.
@@ -31,13 +33,16 @@
         --paper-button-ink-color: #00567B;
         margin-top: 5px;
       }
-    </style>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
+    </style> 
+        <paper-toast
+          id="toast_invalid_aanroep"
+          duration="0"
+          text="U hebt dit scherm op een illegale manier geactiveerd. U wordt verwezen naar de home page!">
+          <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
+        </paper-toast>
+
     <div class="card">
-            <h1>Rooster</h1>
+            <h1>Rooster TEST</h1>
             <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
             <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{gerechteninfo}}" selected-items="{{selectedItems}}" active-item="{{selectedItem}}" column-rendering-allowed multi-sort>
                 <vaadin-grid-selection-column auto-select></vaadin-grid-selection-column>  
@@ -51,9 +56,26 @@
                 </vaadin-grid-column>     
               </vaadin-grid>
               <br>
-              <paper-button class="my-button" raised on-click="verwijderen">Insturen</paper-button>
+              <paper-button class="my-button" raised on-click="verwijderen">Testen</paper-button>
         </div>
+        
+      <paper-button
+        id="ajax_rooster_ophalen"
+        class="my-button"
+        on-click="_rooster_ophalen_request_handler"
+        raised>
+          Testen
+      </paper-button>
+    
+      <iron-ajax
+        id="ajax_rooster"
+        method="POST"
+        url="/rooster"
+        handle-as="json"
+        on-response="_ophalen_rooster_response_handler">
+      </iron-ajax>
   </template>
+
 
   <script>
     (function() {
@@ -65,6 +87,46 @@
       */
       Polymer({
         is: 'my-student-rooster',
+
+        properties: {
+          c_visible: {
+            type: Boolean,                                      /* true when element is the active visible item */
+            value: false,
+            observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                                                                   regel in de functie dat er niets gebeurd
+                                                                   als c_visible false is */
+          },
+        },
+
+        _go_home: function() {
+          var lApp = document.querySelector('my-app');  //het polymer element <my-app>
+          var lAppRouter = lApp.$.approuter;            // het html-element <app-route> met id=approuter
+          lAppRouter.data={page: ""};                   // vul het data attribute met de homepage url
+                                                        // door de two way binding in <app-route> en <app-location>
+                                                        // zal ook de url echt wijzigen
+        },
+        
+        _initializing : function() {
+          if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="student") {                        // voor studenten
+              this._medestudenten_ophalen_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep
+              lToast.open();                                    /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
+          }
+        },
+       
+        _rooster_ophalen_request_handler: function() {
+          this.$.ajax_rooster.generateRequest();
+          console.log("Handler test!");
+        },
+        _ophalen_rooster_response_handler: function(request) {
+          console.log(request);
+          console.log(request.detail.response);
+        },
+
       });
     })();
   </script>
