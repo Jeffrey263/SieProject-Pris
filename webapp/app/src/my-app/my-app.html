@@ -164,9 +164,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="icons:accessibility"></iron-icon>
             <span>Statistiekdocenten</span>
           </a>
-          <hr>
 
           <hr>
+          
           <a name="my_student_statistiek" href$="[[_c_baseURL]]my_student_statistiek">
             <iron-icon icon="icons:build"></iron-icon>
             <span>Student Statistiek</span>
@@ -194,10 +194,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <a name="student_medestudenten" href$="[[_c_baseURL]]student_medestudenten"  verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
             <iron-icon icon="social:group"></iron-icon>
             <span>Toon medestudenten</span>
-          </a>
-          <a name="my_student_statastiek" href$="[[_c_baseURL]]my_student_statastiek" verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
-            <iron-icon icon="social:group"></iron-icon>
-            <span>Toon statastiek</span>
           </a>
 
           <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
@@ -332,7 +328,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <my-student-rooster
                     c_visible="[[_are_strings_equal(_ar_page, 'my_student_rooster')]]"
                     c_rol="[[_rol]]"
-                    c_username="[[_username]]">
+                    c_username="[[_username]]"
+                    c_systeemdatum="[[_systeemdatumstandaard]]">
             </my-student-rooster>
             </paper-material>
           </section>

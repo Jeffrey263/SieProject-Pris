@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
@@ -20,18 +21,24 @@
 
 <dom-module id="my-student-rooster">
   <template>
-    <style>
-        :host {
-            display: block;
-            padding: 10px;
-        }
-        .my-button {
-        width: 100%;
-        color: white;
-        background: #1a9fd9;
-        --paper-button-ink-color: #00567B;
-        margin-top: 5px;
+    <style is="custom-style">
+      :host {
+          display: block;
+          padding: 10px;
+
+          --paper-input-container-underline: {
+            display: none;
+          };
       }
+
+      .my-button {
+      width: 100%;
+      color: white;
+      background: #1a9fd9;
+      --paper-button-ink-color: #00567B;
+      margin-top: 5px;
+      }
+
     </style> 
         <paper-toast
           id="toast_invalid_aanroep"
@@ -41,30 +48,71 @@
         </paper-toast>
 
     <div class="card">
-            <h1>Rooster TEST2</h1>
+            <h1>Rooster</h1>
             <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
-            <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{gerechteninfo}}" selected-items="{{selectedItems}}" active-item="{{selectedItem}}" column-rendering-allowed multi-sort>
-                <vaadin-grid-selection-column auto-select></vaadin-grid-selection-column>  
+            <vaadin-grid id="grid" class="table" is="dom-repeat" items="[[c_rooster]]" column-rendering-allowed multi-sort>
               <vaadin-grid-column>
                   <template class="header">
-                    <vaadin-grid-sorter path="">Rooster</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="">Aanwezigheid</vaadin-grid-sorter>
                   </template>
                   <template>
-                      <paper-input readonly value=""></paper-input>
+                      <paper-radio-group label="Aanwezig" selected= {{item.aanwezig::change}}>
+                          <paper-radio-button name="true">Ja</paper-radio-button>
+                          <paper-radio-button name="false">Nee</paper-radio-button>
+                        </paper-radio-group>
                   </template>
-                </vaadin-grid-column>     
+                </vaadin-grid-column> 
+              
+              
+              <vaadin-grid-column>
+                  <template class="header">
+                    <vaadin-grid-sorter path="">Datum</vaadin-grid-sorter>
+                  </template>
+                  <template>
+                      <paper-input readonly value="[[item.startDatum]]"></paper-input>
+                  </template>
+                </vaadin-grid-column>  
+
+                <vaadin-grid-column>
+                    <template class="header">
+                      <vaadin-grid-sorter path="">Tijd</vaadin-grid-sorter>
+                    </template>
+                    <template>
+                        <paper-input readonly value="[[item.startTijd]] tot [[item.eindTijd]]"></paper-input>
+                    </template>
+                  </vaadin-grid-column>   
+              
+              <vaadin-grid-column>
+                <template class="header">
+                  <vaadin-grid-sorter path="">Vak</vaadin-grid-sorter>
+                </template>
+                <template>
+                    <paper-input readonly value="[[item.naam]]"></paper-input>
+                </template>
+              </vaadin-grid-column>     
+              
+              <vaadin-grid-column>
+                <template class="header">
+                  <vaadin-grid-sorter path="">Lokaal</vaadin-grid-sorter>
+                </template>
+                <template>
+                    <paper-input readonly value="[[item.lokaalNummer]]"></paper-input>
+                </template>
+              </vaadin-grid-column>   
+
+              <vaadin-grid-column>
+                  <template class="header">
+                    <vaadin-grid-sorter path="">Docent</vaadin-grid-sorter>
+                  </template>
+                  <template>
+                      <paper-input readonly value="[[item.docent]]"></paper-input>
+                  </template>
+                </vaadin-grid-column>   
+
               </vaadin-grid>
               <br>
-              <paper-button class="my-button" raised on-click="verwijderen">Testen</paper-button>
+              <paper-button class="my-button" raised on-click="verwijderen">Presentie doorgeven</paper-button>
         </div>
-        
-      <paper-button
-        id="ajax_rooster_ophalen"
-        class="my-button"
-        on-click="_rooster_ophalen_request_handler"
-        raised>
-          Testen
-      </paper-button>
     
       <iron-ajax
         id="ajax_rooster"
@@ -88,8 +136,14 @@
         is: 'my-student-rooster',
 
         properties: {
+          c_rooster: {
+            type: Array
+          },
           c_rol: {
             type: String,
+          },
+          c_systeemdatum: {
+            type: String
           },
           c_username: {
             type: String,
@@ -127,12 +181,15 @@
           console.log("Handler test!");
           this.$.ajax_rooster.contentType="application/json";
           this.$.ajax_rooster.body={
-            "username":this.c_username
+            "username":this.c_username,
+            "systeemdatum":this.c_systeemdatum
           };
           this.$.ajax_rooster.generateRequest();
         },
+
         _ophalen_rooster_response_handler: function(request) {
           console.log(request.detail.response);
+          this.c_rooster = request.detail.response;
         },
         
         _toast_clicked: function(e) {
