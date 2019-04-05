@@ -150,13 +150,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <hr>
 
           <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
+          <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" >
+              <iron-icon icon="icons:accessibility"></iron-icon>
+              <span>Docenten</span>
+          </a>
 
-          <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" >
-              <iron-icon icon="icons:today"></iron-icon>
-              <span>Studentenrooster</span>
+          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" >
+            <iron-icon icon="icons:build"></iron-icon>
+            <span>[temp] Docenten overzicht</span>
+          </a>
+
+          <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" >
+            <iron-icon icon="icons:accessibility"></iron-icon>
+            <span>Statistiekdocenten</span>
           </a>
 
           <hr>
+          
           <a name="my_student_statistiek" href$="[[_c_baseURL]]my_student_statistiek">
             <iron-icon icon="icons:build"></iron-icon>
             <span>Student Statistiek</span>
@@ -201,10 +211,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="social:group"></iron-icon>
             <span>Toon medestudenten</span>
           </a>
-          <a name="my_student_statastiek" href$="[[_c_baseURL]]my_student_statastiek"
-            verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
-            <iron-icon icon="social:group"></iron-icon>
-            <span>Toon statastiek</span>
+
+          <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
+            <iron-icon icon="icons:today"></iron-icon>
+            <span>Studentenrooster</span>
           </a>
 
         </iron-selector>
@@ -257,17 +267,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-material>
         </section>
 
-        <section page-name="my_student_rooster" title="ROOSTER" element$="my-student-rooster">
-            <paper-material elevation="1">
-            <my-student-rooster></my-student-rooster>
-            </paper-material>
-          </section>
-
-          <section page-name="my_student_statistiek" title="STATISTIEK" element$="my-student-statistiek">
-            <paper-material elevation="1">
-              <my-student-statistiek></my-student-statistiek>
-            </paper-material>
-          </section>
+        <section page-name="my_student_statistiek" title="STATISTIEK" element$="my-student-statistiek">
+          <paper-material elevation="1">
+            <my-student-statistiek></my-student-statistiek>
+          </paper-material>
+        </section>
 
 
         <!-- element$="none" of weglaten van element$ geeft beide aan dat er geen polymerElement gebruikt zal gaan worden -->
@@ -330,6 +334,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 c_rol="[[_rol]]"
                 c_username="[[_username]]">
               </my-medestudenten>
+            </paper-material>
+          </section>
+
+          <section  page-name="my_student_rooster" 
+                    title="ROOSTER"
+                    element$="my-student-rooster">
+            <paper-material elevation="1">
+            <my-student-rooster
+                    c_visible="[[_are_strings_equal(_ar_page, 'my_student_rooster')]]"
+                    c_rol="[[_rol]]"
+                    c_username="[[_username]]"
+                    c_systeemdatum="[[_systeemdatumstandaard]]">
+            </my-student-rooster>
             </paper-material>
           </section>
 
