@@ -150,21 +150,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <hr>
 
           <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
-          <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" >
-              <iron-icon icon="icons:accessibility"></iron-icon>
-              <span>Docenten</span>
-          </a>
-
-          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" >
-            <iron-icon icon="icons:build"></iron-icon>
-            <span>[temp] Docenten overzicht</span>
-          </a>
-
-          <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" >
-            <iron-icon icon="icons:accessibility"></iron-icon>
-            <span>Statistiekdocenten</span>
-          </a>
-          <hr>
 
           <a name="my_student_rooster" href$="[[_c_baseURL]]my_student_rooster" >
               <iron-icon icon="icons:today"></iron-icon>
@@ -193,7 +178,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Uitloggen</span>
           </a>
 
+          <hr>
+
           <!-- beschikbaar voor docent -->
+          <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" verborgen$="[[!_are_strings_equal(_rol, 'docent')]]">
+            <iron-icon icon="icons:accessibility"></iron-icon>
+            <span>Docenten</span>
+          </a>
+
+          <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" verborgen$="[[!_are_strings_equal(_rol, 'docent')]]">
+            <iron-icon icon="icons:accessibility"></iron-icon>
+            <span>Statistiekdocenten</span>
+          </a>
+
+          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" verborgen$="[[!_are_strings_equal(_rol, 'docent')]]">
+            <iron-icon icon="icons:build"></iron-icon>
+            <span>[temp] Docenten overzicht</span>
+          </a>
 
           <!-- beschikbaar voor student -->
           <a name="student_medestudenten" href$="[[_c_baseURL]]student_medestudenten"  verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
