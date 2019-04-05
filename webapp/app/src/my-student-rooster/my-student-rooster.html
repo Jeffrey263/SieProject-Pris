@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
@@ -50,20 +51,19 @@
     <div class="card">
             <h1>Rooster</h1>
             <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
-            <vaadin-grid id="grid" class="table" is="dom-repeat" items="[[c_rooster]]" column-rendering-allowed multi-sort>
+            <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{c_rooster}}" column-rendering-allowed multi-sort>        
               <vaadin-grid-column>
-                  <template class="header">
-                    <vaadin-grid-sorter path="">Aanwezigheid</vaadin-grid-sorter>
-                  </template>
-                  <template>
-                      <paper-radio-group label="Aanwezig" selected= {{item.aanwezig::change}}>
-                          <paper-radio-button name="true">Ja</paper-radio-button>
-                          <paper-radio-button name="false">Nee</paper-radio-button>
-                        </paper-radio-group>
-                  </template>
-                </vaadin-grid-column> 
-              
-              
+                <template class="header">
+                  <vaadin-grid-sorter path="">Aanwezig</vaadin-grid-sorter>
+                </template>
+                <template>
+                  <paper-checkbox
+                  class="my-check"
+                  checked="{{item.aanwezig}}">
+                </paper-checkbox>
+                </template>
+              </vaadin-grid-column>  
+            
               <vaadin-grid-column>
                   <template class="header">
                     <vaadin-grid-sorter path="">Datum</vaadin-grid-sorter>
@@ -111,7 +111,7 @@
 
               </vaadin-grid>
               <br>
-              <paper-button class="my-button" raised on-click="verwijderen">Presentie doorgeven</paper-button>
+              <paper-button class="my-button" raised on-click="_student_afwezigheid_request_handler">Presentie doorgeven</paper-button>
         </div>
     
       <iron-ajax
@@ -120,6 +120,14 @@
         url="/student/rooster"
         handle-as="json"
         on-response="_ophalen_rooster_response_handler">
+      </iron-ajax>
+
+      <iron-ajax
+        id="presentie_doorgeven"
+        method="POST"
+        url="/student/afwezigheid/doorgeven"
+        handle-as="json"
+        on-response="_student_afwezigheid_response_handler">
       </iron-ajax>
   </template>
 
@@ -190,6 +198,23 @@
         _ophalen_rooster_response_handler: function(request) {
           console.log(request.detail.response);
           this.c_rooster = request.detail.response;
+        },
+
+        _student_afwezigheid_request_handler: function() {
+          console.log("Afwezigheid doorgeven test!");
+          this.$.presentie_doorgeven.contentType="application/json";
+          this.$.presentie_doorgeven.body={
+            "username":this.c_username,
+            "vak":this.c_rooster["vak"],
+            "lokaal":this.c_rooster.lokaal,
+            "docent":this.c_rooster.docent
+          };
+          this.$.presentie_doorgeven.generateRequest();
+        },
+        
+        _student_afwezigheid_response_handler: function(request) {
+          console.log("Presentie ingestuurd!");
+          // this._go_home();		/* verlaat de pagina en ga terug naar home page */
         },
         
         _toast_clicked: function(e) {

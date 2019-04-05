@@ -45,7 +45,7 @@ public class RoosterController implements Handler{
 		Student lStudentZelf = informatieSysteem.getStudent(lGebruikersnaam);
 		Klas lKlas = informatieSysteem.getKlasVanStudent(lStudentZelf);		// klas van de student opzoeken
 		
-		Rooster hetRooster = informatieSysteem.hetRooster;
+		Rooster hetRooster = informatieSysteem.getRooster();
 		ArrayList<Les> roosterStudent = hetRooster.getLesByKlas(lKlas.getKlasCode());
 		
 		JsonArrayBuilder lJsonArrayBuilder = Json.createArrayBuilder();	
@@ -58,7 +58,8 @@ public class RoosterController implements Handler{
 				.add("tijd", les.getTijd())
 				.add("vak", les.getVak())
 				.add("lokaal", les.getLokaal())
-				.add("docent", les.getDocent());
+				.add("docent", les.getDocent())
+				.add("aanwezig", true);
 				lJsonArrayBuilder.add(lJsonObjectBuilderVoorStudent); // voeg toe aan de JsonArray die wordt teruggestuurd naar de front-end/Polymer-GUI
 			}
 	

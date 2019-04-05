@@ -58,7 +58,7 @@ public class Les {
 		return groep;
 	}
 	public String getDatum() {
-		return startDatum.toString();
+		return startDatum;
 	}
 	public String getTijd() {
 		return startTijd + " tot " + eindTijd;

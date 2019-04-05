@@ -27,4 +27,15 @@ public class Rooster {
 		
 		return lessenKlas;
 	}
+	
+	public Les getLesByInfo(String klas, String naam, String datum) {
+		Les deLes = null;
+		for(Les les : deLessen) {
+			if(les.getKlas().equals(klas) && les.getVak().equals(naam) && les.getDatum().equals(datum)){
+				deLes = les;
+				break;
+			}
+		}
+		return deLes;
+	}
 }

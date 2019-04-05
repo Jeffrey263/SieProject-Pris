@@ -116,6 +116,10 @@ public class PrIS {
 		return deStudenten.stream().filter(s -> s.getStudentNummer() == pStudentNummer).findFirst().orElse(null);
 	}
 
+	public Rooster getRooster() {
+		return hetRooster;
+	}
+	
 	public String login(String gebruikersnaam, String wachtwoord) {
 		for (Docent d : deDocenten) {
 			if (d.getGebruikersnaam().equals(gebruikersnaam)) {
