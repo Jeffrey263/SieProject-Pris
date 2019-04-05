@@ -6,18 +6,27 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 import model.klas.Klas;
 import model.persoon.Docent;
 import model.persoon.Student;
+import model.les.*;
+import model.rooster.*;
 
 public class PrIS {
 	private ArrayList<Docent> deDocenten;
 	private ArrayList<Student> deStudenten;
 	private ArrayList<Klas> deKlassen;
+	public Rooster hetRooster;
 
 	/**
 	 * De constructor maakt een set met standaard-data aan. Deze data moet nog
@@ -45,10 +54,14 @@ public class PrIS {
 		deDocenten = new ArrayList<Docent>();
 		deStudenten = new ArrayList<Student>();
 		deKlassen = new ArrayList<Klas>(); // Inladen klassen
+		hetRooster = new Rooster();
+		
+		
 		vulKlassen(deKlassen); // Inladen studenten in klassen
 		vulStudenten(deStudenten, deKlassen);
 		// Inladen docenten
 		vulDocenten(deDocenten);
+		vulRooster();
 
 	} // Einde Pris constructor
 
@@ -234,5 +247,62 @@ public class PrIS {
 		if (pStudenten.isEmpty())
 			pStudenten.add(dummyStudent);
 	}
+	
+	private void vulRooster() {
+		JsonObjectBuilder lJsonObjectBuilderVoorStudent = Json.createObjectBuilder(); // maak het JsonObject voor een student
+		
+		String csvFile = "././CSV/rooster.csv";
+		BufferedReader br = null;
+		String line = "";
+		line = line.replace(",,", ", ,");
+		String cvsSplitBy = ",";
+		
+		try {
+			br = new BufferedReader(new FileReader(csvFile));
+			while ((line = br.readLine()) != null) {
+				String[] klasCheck = line.split(cvsSplitBy);
+				// use comma as separator
+				String[] element = line.split(",(?=([^\"]|\"[^\"]*\")*$)");
+				String naam = element[0].replace("\"", "");
+				String cursusCode = element[1].replace("\"", "");
+				String startWeek = element[2].replace("\"", "");
+				String startDag = element[3].replace("\"", "");
+				String startDatum = element[4].replace("\"", "");
+				String startTijd = element[5].replace("\"", "");
+				String eindDag = element[6].replace("\"", "");
+				String eindDatum = element[7].replace("\"", "");
+				String eindTijd = element[8].replace("\"", "");
+				String duur = element[9].replace("\"", "");
+				String werkVorm = element[10].replace("\"", "");
+				String docent = element[11].replace("\"", "");
+				String lokaalNummer = element[12].replace("\"", "");
+				String groep = element[13].replace("\"", "");
+				String faculteit = element[14].replace("\"", "");
+				String grootte = element[15].replace("\"", "");
+				String opmerking = element[16].replace("\"", "");
+				
+				//Toevoegen tijdelijk les object
+				Les lesHolder = new Les(naam, cursusCode, startWeek, startDag, startDatum, startTijd,
+						eindDag, eindDatum, eindTijd, duur, werkVorm, docent, lokaalNummer, groep,
+						faculteit, grootte, opmerking);
+				
+				//Toevoegen aan het rooster
+				hetRooster.voegLesToe(lesHolder);
+			}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+		}
+		
+	}	
 
 }
