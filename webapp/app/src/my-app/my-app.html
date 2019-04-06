@@ -150,23 +150,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <hr>
 
           <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
-          <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" >
-              <iron-icon icon="icons:accessibility"></iron-icon>
-              <span>Docenten</span>
-          </a>
-
-          <a name="temp_docent_overzicht" href$="[[_c_baseURL]]temp_docent_overzicht" >
-            <iron-icon icon="icons:build"></iron-icon>
-            <span>[temp] Docenten overzicht</span>
-          </a>
-
-          <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" >
-            <iron-icon icon="icons:accessibility"></iron-icon>
-            <span>Statistiekdocenten</span>
-          </a>
-
-          <hr>
-          
+        
           <a name="my_student_statistiek" href$="[[_c_baseURL]]my_student_statistiek">
             <iron-icon icon="icons:build"></iron-icon>
             <span>Student Statistiek</span>
@@ -193,7 +177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <!-- beschikbaar voor docent -->
           <a name="my_docenten" href$="[[_c_baseURL]]my_docenten" verborgen$="[[!_are_strings_equal(_rol, 'docent')]]">
             <iron-icon icon="icons:accessibility"></iron-icon>
-            <span>Docenten</span>
+            <span>Docenten rooster</span>
           </a>
 
           <a name="my_statistiek_docenten" href$="[[_c_baseURL]]my_statistiek_docenten" verborgen$="[[!_are_strings_equal(_rol, 'docent')]]">
@@ -249,23 +233,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </section>
 
         <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
-        <section page-name="my_docenten" title="DOCENTEN" element$="my-docenten">
-          <paper-material elevation="1">
-          <my-docenten></my-docenten>
-          </paper-material>
-        </section>
-
-        <section page-name="temp_docent_overzicht" title="DOCENTEN-OVERZICHT" element$="temp-docent-overzicht">
-            <paper-material elevation="1">
-            <temp-docent-overzicht></temp-docent-overzicht>
-            </paper-material>
-          </section>
-
-        <section page-name="my_statistiek_docenten" title="DOCENTEN-STAT" element$="my-statistiek-docenten">
-          <paper-material elevation="1">
-          <my-statistiek-docenten></my-statistiek-docenten>
-          </paper-material>
-        </section>
 
         <section page-name="my_student_statistiek" title="STATISTIEK" element$="my-student-statistiek">
           <paper-material elevation="1">
@@ -317,6 +284,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
 
 <!-- sections voor docent -->
+
+        <section  page-name="my_docenten" 
+                  title="DOCENTEN" 
+                  element$="my-docenten">
+          <paper-material elevation="1">
+            <my-docenten
+              c_visible="[[_are_strings_equal(_ar_page, 'my_docenten')]]"
+              c_rol="[[_rol]]"
+              c_username="[[_username]]"
+              c_systeemdatum="[[_systeemdatumstandaard]]"
+            ></my-docenten>
+          </paper-material>
+        </section>
+
+        <section page-name="temp_docent_overzicht" title="DOCENTEN-OVERZICHT" element$="temp-docent-overzicht">
+            <paper-material elevation="1">
+            <temp-docent-overzicht></temp-docent-overzicht>
+            </paper-material>
+          </section>
+
+        <section page-name="my_statistiek_docenten" title="DOCENTEN-STAT" element$="my-statistiek-docenten">
+          <paper-material elevation="1">
+          <my-statistiek-docenten></my-statistiek-docenten>
+          </paper-material>
+        </section>
 
  <!-- sections voor student -->
           <section  page-name="student_medestudenten"

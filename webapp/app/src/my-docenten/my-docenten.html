@@ -8,6 +8,9 @@
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
@@ -36,34 +39,27 @@
     <meta http-equiv="Expires" content="0">
 
     <div>
-        <h1>Docenten pagina</h1>
+        <h1>Docenten rooster</h1>
+        <p>welkom [[c_username]]</p>
 
-        <paper-dropdown-menu label="Klas" noink no-animations>
-          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
-            <paper-item>V1A</paper-item>
-            <paper-item>V1B</paper-item>
-            <paper-item>V1C</paper-item>
-            <paper-item>V1D</paper-item>
-            <paper-item>V1E</paper-item>
-          </paper-listbox>
-        </paper-dropdown-menu>
-
-        <paper-dropdown-menu label="Les" noink no-animations style="margin-left: 14px">
-          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
-            <paper-item>OODC-20-3-2019</paper-item>
-            <paper-item>AUI-20-3-2019</paper-item>
-            <paper-item>OODC-25-3-2019</paper-item>
-            <paper-item>AUI-25-3-2019</paper-item>
-          </paper-listbox>
-        </paper-dropdown-menu>
+        <!-- lijst van lessen -->
+        <iron-list items="[[c_roosterDocent]]" as="les" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+            <template>
+              <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
+                    <h>[[les.vak]]</h><br>
+                    <h>[[les.klas]]</h><br>
+                    <h>[[les.datum]]</h><br>
+                    <paper-button style="float: right; color:dodgerblue">aanwezigheid aangeven</paper-button>
+              </div>
+            </template>
+    </iron-list>
         
         <!-- !! lijst van leerlingen !! -->
-        <iron-list items="[[leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <!-- <iron-list items="[[leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
                 <template>
                   <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
                         <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
                         <h style="font-size: 15px; margin-bottom: 20px">[[leerling.name]], [[leerling.StudentNummer]]</h>
-                        <!-- <paper-input label="aanwezigheid" value="{{leerling.aanwezig}}" style="width: 80px"></paper-input> -->
                         <paper-dropdown-menu label="aanwezigheid" noink no-animations style="float: right">
                           <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezig}}" attr-for-selected="data-item">
                             <paper-item data-item="Aanwezig">Aanwezig</paper-item>
@@ -71,29 +67,27 @@
                             <paper-item data-item="Afwezig zonder reden" style="color: red">Afwezig zonder reden</paper-item>
                           </paper-listbox>
                         </paper-dropdown-menu><br>
-                        <!-- <h style="float: right">Aanwezig: [[item.aanwezig]]</h> -->
                   </div>
                 </template>
-        </iron-list>
-        <paper-button raised on-click="opslaanHandler">Opslaan</paper-button>
-        <paper-button>naar statestiek</paper-button>
+        </iron-list> -->
     </div> 
     <app-localstorage-document key="leerlingen" data="{{leerlingen}}"></app-localstorage-document> 
+    <app-localstorage-document key="roosterDocent" data="{{c_roosterDocent}}"></app-localstorage-document> 
 
     <iron-ajax
-      id="ajax_medestudenten_ophalen"
+      id="ajax_rooster_docent"
       method="POST"
-      url="/student/medestudenten/ophalen"
+      url="/docent/rooster"
       handle-as="json"
-      on-response="_medestudenten_ophalen_response_handler">
-   </iron-ajax>
+      on-response="_ophalen_rooster_response_handler">
+    </iron-ajax>
 
     <iron-ajax
-      id="ajax_medestudenten_opslaan"
+      id="presentie_doorgeven"
       method="POST"
-      url="/student/medestudenten/opslaan"
+      url="/student/afwezigheid/doorgeven"
       handle-as="json"
-      on-response="_medestudenten_opslaan_response_handler">
+      on-response="_student_afwezigheid_response_handler">
     </iron-ajax>
   </template>
 
@@ -108,91 +102,115 @@
       Polymer({
         is: 'my-docenten',
 
-        get properties(){
-        return{
-            leerlingen:{
-                type: Array,
-                notify: true,
-                value: [
-                         {name: "Jeffrey van Es", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Timo van Dijk", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Leon van der Heiden", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Soerano Tjaris", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Andre de koning", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Rick van Tol", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Thom van bemmelen", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Charlotte Weinands", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Mathijs Slappendel", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Ronin van der Werke", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Rik Vermeer", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Bradley Oiendijk", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Mijke de Jong", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Clijmart", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Max Bressers", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Kees", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                         {name: "Lida", StudentNummer:"17026814", aanwezig:"Aanwezig"},
-                ]
-            },
-
-            c_username: {
+        properties: {
+          c_roosterDocent: {
+            type: Array
+          },
+          c_rol: {
             type: String,
           },
-
-          naam:{
+          c_systeemdatum: {
+            type: String
+          },
+          c_username: {
             type: String,
-            value: "Jeffrey van Es",
-            notify: true
-          }
-        };
-      },
+          },
+          c_visible: {
+            type: Boolean,                                      /* true when element is the active visible item */
+            value: false,
+            observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                                                                   regel in de functie dat er niets gebeurd
+                                                                   als c_visible false is */
+          },
+        },
 
-      _initializing : function() {
+      //   get properties(){
+      //   return{
+      //       leerlingen:{
+      //           type: Array,
+      //           notify: true,
+      //           value: [
+      //                    {name: "Jeffrey van Es", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Timo van Dijk", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Leon van der Heiden", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Soerano Tjaris", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Andre de koning", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Rick van Tol", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Thom van bemmelen", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Charlotte Weinands", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Mathijs Slappendel", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Ronin van der Werke", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Rik Vermeer", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Bradley Oiendijk", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Mijke de Jong", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Clijmart", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Max Bressers", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Kees", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //                    {name: "Lida", StudentNummer:"17026814", aanwezig:"Aanwezig"},
+      //           ]
+      //       },
+      //   };
+      // },
+
+      _go_home: function() {
+          var lApp = document.querySelector('my-app');  //het polymer element <my-app>
+          var lAppRouter = lApp.$.approuter;            // het html-element <app-route> met id=approuter
+          lAppRouter.data={page: ""};                   // vul het data attribute met de homepage url
+                                                        // door de two way binding in <app-route> en <app-location>
+                                                        // zal ook de url echt wijzigen
+        },
+        
+        _initializing : function() {
+          console.log("init docent");
           if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
-            if (this.c_rol=="student") {                        // voor studenten
-              this._medestudenten_ophalen_request_handler();    //    haal info op van server
-            } else {                                            // na handmatige url wijziging zonder login
-              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep
-              lToast.open();                                    /* het sluiten van deze error verwijst  */
+            if (this.c_rol=="docent") {   
+              console.log("is docent")                     // voor studenten
+              this._rooster_ophalen_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
                                                                 /* terug naar home page */
             }
           }
         },
-
-        _medestudenten_ophalen_request_handler: function() {
-          console.log("_medestudenten_ophalen_request_handler user="+this.c_username);
-          this.$.ajax_medestudenten_ophalen.contentType="application/json";
-          this.$.ajax_medestudenten_ophalen.body={
-            "username":this.c_username
+       
+        _rooster_ophalen_request_handler: function() {
+          console.log("Handler test!");
+          this.$.ajax_rooster_docent.contentType="application/json";
+          this.$.ajax_rooster_docent.body={
+            "username":this.c_username,
+            "systeemdatum":this.c_systeemdatum
           };
-          this.$.ajax_medestudenten_ophalen.generateRequest();
+          this.$.ajax_rooster_docent.generateRequest();
         },
 
-        _medestudenten_ophalen_response_handler: function(request) {
-          console.log("_mededestudenten_ophalen_response_handler aantal studenten="+request.detail.response.length);
-          this._c_studenten = request.detail.response;
+        _ophalen_rooster_response_handler: function(request) {
+          console.log("haal de JSON op.")
+          console.log(request.detail.response);
+          this.c_roosterDocent= request.detail.response;
         },
 
-        _medestudenten_opslaan_request_handler: function() {
-          console.log("_medestudenten_opslaan_request_handler user="+this.c_username);
-          this.$.ajax_medestudenten_opslaan.contentType="application/json";
-          this.$.ajax_medestudenten_opslaan.body={
-              "username":this.c_username,
-              "groupMembers": this._c_studenten
+        _student_afwezigheid_request_handler: function() {
+          console.log("Afwezigheid doorgeven test!");
+          this.$.presentie_doorgeven.contentType="application/json";
+          this.$.presentie_doorgeven.body={
+            "username":this.c_username,
+            "vak":this.c_rooster["vak"],
+            "lokaal":this.c_rooster.lokaal,
+            "docent":this.c_rooster.docent
           };
-          this.$.ajax_medestudenten_opslaan.generateRequest();
+          this.$.presentie_doorgeven.generateRequest();
         },
-
-        _medestudenten_opslaan_response_handler: function(request) {
-          console.log("_mededestudenten_opslaan_response_handler errorcode="+request.detail.response.errorcode);
-          this._go_home();		/* verlaat de pagina en ga terug naar home page */
+        
+        _student_afwezigheid_response_handler: function(request) {
+          console.log("Presentie ingestuurd!");
+          // this._go_home();		/* verlaat de pagina en ga terug naar home page */
         },
-
-      opslaanHandler(){ 
-        console.log(c_username);
-        this.push("leerlingen",null);
-      }
-
-      
+        
+        _toast_clicked: function(e) {
+         var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep
+         lToast.toggle();
+         this._go_home();
+        }
 
       });
     })();

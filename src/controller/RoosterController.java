@@ -18,6 +18,7 @@ import javax.json.JsonObjectBuilder;
 import model.PrIS;
 import model.klas.Klas;
 import model.les.Les;
+import model.persoon.Docent;
 import model.persoon.Student;
 import model.rooster.Rooster;
 import server.Conversation;
@@ -46,6 +47,7 @@ public class RoosterController implements Handler{
 		Klas lKlas = informatieSysteem.getKlasVanStudent(lStudentZelf);		// klas van de student opzoeken
 		
 		Rooster hetRooster = informatieSysteem.getRooster();
+		System.out.println(hetRooster);
 		ArrayList<Les> roosterStudent = hetRooster.getLesByKlas(lKlas.getKlasCode());
 		
 		JsonArrayBuilder lJsonArrayBuilder = Json.createArrayBuilder();	
@@ -68,5 +70,7 @@ public class RoosterController implements Handler{
 		String lJsonOutStr = lJsonArrayBuilder.build().toString();	
 		conversation.sendJSONMessage(lJsonOutStr); // terugsturen naar de Polymer-GUI!
 	}	
+	
+	
 }
 

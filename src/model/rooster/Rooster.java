@@ -3,6 +3,7 @@ package model.rooster;
 import java.util.ArrayList;
 
 import model.les.*;
+import model.persoon.Docent;
 
 public class Rooster {
 	private ArrayList<Les> deLessen = new ArrayList<Les>();
@@ -26,6 +27,19 @@ public class Rooster {
 		}
 		
 		return lessenKlas;
+	}
+	
+	public ArrayList<Les> getLessenByDocent(String docent){
+		System.out.println("[Rooster] start getLessenByDocent");
+		ArrayList<Les> lessenDocent = new ArrayList<Les>();
+		
+		for(Les les : deLessen) {
+			if(les.getDocent().equals(docent)) {
+				lessenDocent.add(les);
+			}
+		}
+		System.out.println("[Rooster] " + lessenDocent);
+		return lessenDocent;
 	}
 	
 	public Les getLesByInfo(String klas, String naam, String datum) {
