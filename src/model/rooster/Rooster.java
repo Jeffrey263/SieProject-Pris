@@ -45,6 +45,11 @@ public class Rooster {
 	public Les getLesByInfo(String klas, String naam, String datum) {
 		Les deLes = null;
 		for(Les les : deLessen) {
+			System.out.println("------------------------------------------------------");
+			System.out.println("[Rooster] Vak: " + les.getVak() + " -=- " + naam);
+			System.out.println("[Rooster] klas: " + les.getKlas() + " -=- " + klas);
+			System.out.println("[Rooster] Datum: " + les.getDatum() + " -=- " + datum);
+			
 			if(les.getKlas().equals(klas) && les.getVak().equals(naam) && les.getDatum().equals(datum)){
 				deLes = les;
 				break;

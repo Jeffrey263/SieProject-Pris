@@ -47,6 +47,7 @@ public class RoosterControllerDocent implements Handler{
 		Docent lDocentZelf = informatieSysteem.getDocent(lGebruikersnaam);
 		Rooster hetRooster = informatieSysteem.getRooster();
 		ArrayList<Les> roosterDocent = hetRooster.getLessenByDocent(lGebruikersnaam);
+		int lescode = 0;
 		
 		JsonArrayBuilder lJsonArrayBuilder = Json.createArrayBuilder();	
 		System.out.println("[JSONbuilder] START");
@@ -57,6 +58,8 @@ public class RoosterControllerDocent implements Handler{
 				lJsonObjectBuilderVoorDocent.add("klas", les.getKlas());
 				lJsonObjectBuilderVoorDocent.add("datum", les.getDatum());
 				lJsonObjectBuilderVoorDocent.add("vak", les.getVak());
+				lJsonObjectBuilderVoorDocent.add("lescode", lescode);
+				lescode += 1;
 				lJsonArrayBuilder.add(lJsonObjectBuilderVoorDocent); // voeg toe aan de JsonArray die wordt teruggestuurd naar de front-end/Polymer-GUI
 			//}
 	
