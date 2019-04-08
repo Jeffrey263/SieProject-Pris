@@ -24,7 +24,8 @@
     "paper-listbox": "PolymerElements/paper-listbox#2.1.1",
     "iron-list": "PolymerElements/iron-list#2.0.19",
     "app-storage": "PolymerElements/app-storage#2.1.2",
-    "paper-radio-group": "PolymerElements/paper-radio-group#2.2.0"
+    "paper-radio-group": "PolymerElements/paper-radio-group#2.2.0",
+    "highcharts-chart": "avdaredevil/highcharts-chart#^2.0.2"
   },
   "devDependencies": {},
   "ignore": [],

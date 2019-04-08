@@ -151,10 +151,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
         
-          <a name="my_student_statistiek" href$="[[_c_baseURL]]my_student_statistiek">
-            <iron-icon icon="icons:build"></iron-icon>
-            <span>Student Statistiek</span>
-          </a>
 
           <!-- altijd beschikbaar -->
           <a name="systeem_instellen_systeemdatum" href$="[[_c_baseURL]]systeem_instellen_systeemdatum" >
@@ -201,6 +197,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Studentenrooster</span>
           </a>
 
+          <a name="my_student_info" href$="[[_c_baseURL]]my_student_info" verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
+            <iron-icon icon="icons:build"></iron-icon>
+            <span>Mijn info</span>
+          </a>
+
         </iron-selector>
       </app-drawer>
 
@@ -231,15 +232,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <my-test-page></my-test-page>
               </paper-material>
         </section>
-
-        <!-- Deze paginas zijn voorlopig voor iedereen, dit wordt later aangepast naar alleen docenten/studenten. -->
-
-        <section page-name="my_student_statistiek" title="STATISTIEK" element$="my-student-statistiek">
-          <paper-material elevation="1">
-            <my-student-statistiek></my-student-statistiek>
-          </paper-material>
-        </section>
-
 
         <!-- element$="none" of weglaten van element$ geeft beide aan dat er geen polymerElement gebruikt zal gaan worden -->
         <section page-name="home" title="HOME" element$="none">
@@ -339,6 +331,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     c_username="[[_username]]"
                     c_systeemdatum="[[_systeemdatumstandaard]]">
             </my-student-rooster>
+            </paper-material>
+          </section>
+          
+          <section page-name="my_student_info" title="Info" element$="my-student-info">
+            <paper-material elevation="1">
+              <my-student-info
+                  c_visible="[[_are_strings_equal(_ar_page, 'my_student_info')]]"
+                  c_rol="[[_rol]]"
+                  c_username="[[_username]]"
+                  c_systeemdatum="[[_systeemdatumstandaard]]">
+              </my-student-info>
             </paper-material>
           </section>
 

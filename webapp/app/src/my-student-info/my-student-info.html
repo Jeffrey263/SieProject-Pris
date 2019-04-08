@@ -1,0 +1,102 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/highcharts-chart/highcharts-chart.html">
+
+
+<dom-module id="my-student-info">
+    <template>
+        <style>
+        </style>
+        
+        <div class="card">
+            <h1>Hallo, [[c_voornaam]]!</h1>
+            <p>Op deze pagina kun je jouw info inzien.</p>
+        </div>
+
+        <iron-ajax
+            id="student_info"
+            method="POST"
+            url="/student/info/opvragen"
+            handle-as="json"
+            on-response="_student_info_rooster_response_handler">
+        </iron-ajax>
+    </template>
+    
+  
+    <script>
+      (function() {
+        'use strict';
+        /* _xxxx private              : geen external data binding      - geen notify
+           _c_xx private constant     : geen external binding, constant - geen notify
+           c_xx  public constant      : one way external databinding [[c_xx]] - geen notify nodig
+           xxxx  public               : two way external databinding {{xxxx}} - notify nodig
+        */
+        Polymer({
+          is: 'my-student-info',
+
+          properties: {
+            c_visible: {
+                type: Boolean,                                      /* true when element is the active visible item */
+                value: false,
+                observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                                                                    regel in de functie dat er niets gebeurd
+                                                                    als c_visible false is */
+            },
+            c_rol: {
+                type: String,
+            },
+            c_username: {
+                type: String,
+            },
+            c_voornaam: {
+                type: String
+            },
+            c_achternaam: {
+                type: String
+            },
+            c_studentNummer: {
+                type: String
+            },
+            c_klasNaam: {
+                type: String
+            },
+          },
+          
+        _go_home: function() {
+          var lApp = document.querySelector('my-app');  //het polymer element <my-app>
+          var lAppRouter = lApp.$.approuter;            // het html-element <app-route> met id=approuter
+          lAppRouter.data={page: ""};                   // vul het data attribute met de homepage url
+                                                        // door de two way binding in <app-route> en <app-location>
+                                                        // zal ook de url echt wijzigen
+        },
+        
+        _initializing : function() {
+          if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="student") {                        // voor studenten
+              this._student_info_rooster_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep
+              lToast.open();                                    /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
+          }
+        },
+       
+        _student_info_rooster_request_handler: function() {
+          this.$.student_info.contentType="application/json";
+          this.$.student_info.body={
+            "username":this.c_username,
+          };
+          this.$.student_info.generateRequest();
+        },
+
+        _student_info_rooster_response_handler: function(request) {
+          console.log(request.detail.response);
+          console.log(request.detail.response.voornaam);
+          var responseArray = request.detail.response;
+          this.c_voornaam = responseArray['voornaam'];
+          console.log(c_voornaam);
+        },
+        });
+      })();
+    </script>
+  </dom-module>

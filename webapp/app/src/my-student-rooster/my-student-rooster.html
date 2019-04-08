@@ -51,22 +51,20 @@
     <div class="card">
             <h1>Rooster</h1>
             <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
-            <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{c_rooster}}" column-rendering-allowed multi-sort>        
+            <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{c_rooster}}" column-rendering-allowed multi-sort>
               <vaadin-grid-column>
-                <template class="header">
-                  <vaadin-grid-sorter path="">Aanwezig</vaadin-grid-sorter>
-                </template>
-                <template>
-                  <paper-checkbox
-                  class="my-check"
-                  checked="{{item.aanwezig}}">
-                </paper-checkbox>
-                </template>
-              </vaadin-grid-column>  
+                  <template class="header">
+                      <vaadin-grid-sorter path="aanwezigheid">Aanwezig</vaadin-grid-sorter>
+                    </template>
+                  <template>
+                      <paper-input value="{{item.aanwezig}}"></paper-input>
+                  </template>
+
+                </vaadin-grid-column>        
             
               <vaadin-grid-column>
                   <template class="header">
-                    <vaadin-grid-sorter path="">Datum</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="datum">Datum</vaadin-grid-sorter>
                   </template>
                   <template>
                       <paper-input readonly value="[[item.datum]]"></paper-input>
@@ -75,7 +73,7 @@
 
                 <vaadin-grid-column>
                     <template class="header">
-                      <vaadin-grid-sorter path="">Tijd</vaadin-grid-sorter>
+                      <vaadin-grid-sorter path="tijd">Tijd</vaadin-grid-sorter>
                     </template>
                     <template>
                         <paper-input readonly value="[[item.tijd]]"></paper-input>
@@ -84,7 +82,7 @@
               
               <vaadin-grid-column>
                 <template class="header">
-                  <vaadin-grid-sorter path="">Vak</vaadin-grid-sorter>
+                  <vaadin-grid-sorter path="vak">Vak</vaadin-grid-sorter>
                 </template>
                 <template>
                     <paper-input readonly value="[[item.vak]]"></paper-input>
@@ -93,7 +91,7 @@
               
               <vaadin-grid-column>
                 <template class="header">
-                  <vaadin-grid-sorter path="">Lokaal</vaadin-grid-sorter>
+                  <vaadin-grid-sorter path="lokaal">Lokaal</vaadin-grid-sorter>
                 </template>
                 <template>
                     <paper-input readonly value="[[item.lokaal]]"></paper-input>
@@ -102,7 +100,7 @@
 
               <vaadin-grid-column>
                   <template class="header">
-                    <vaadin-grid-sorter path="">Docent</vaadin-grid-sorter>
+                    <vaadin-grid-sorter path="docent">Docent</vaadin-grid-sorter>
                   </template>
                   <template>
                       <paper-input readonly value="[[item.docent]]"></paper-input>
@@ -112,6 +110,7 @@
               </vaadin-grid>
               <br>
               <paper-button class="my-button" raised on-click="_student_afwezigheid_request_handler">Presentie doorgeven</paper-button>
+              [[c_rooster.aanwezigheid]]
         </div>
     
       <iron-ajax
@@ -146,6 +145,12 @@
         properties: {
           c_rooster: {
             type: Array
+          },
+          selectedItem: {
+            type: Array,
+          },
+          selectedItems: {
+            type: Array,
           },
           c_rol: {
             type: String,
