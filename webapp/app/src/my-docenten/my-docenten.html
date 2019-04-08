@@ -43,35 +43,44 @@
         <p>welkom [[c_username]]</p>
 
         <!-- lijst van lessen -->
-        <iron-list items="[[c_roosterDocent]]" as="les" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <iron-list items="[[c_roosterDocent]]" as="les" style="background-color: white; height: 300px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
             <template>
               <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
                     <h>[[les.vak]]</h><br>
                     <h>[[les.klas]]</h><br>
                     <h>[[les.datum]]</h><br>
-                    <paper-button style="float: right; color:dodgerblue">aanwezigheid aangeven</paper-button>
+                    <h>lescode: [[les.lescode]]</h><br>
               </div>
             </template>
     </iron-list>
+    </div>  
+    <hr>
+    <div>
+        <h1>afwezigheid afnemen</h1>
+        <paper-input id="lesCode" label="lescode" value="{{lesCode}}" style="width: 70px; float: left"></paper-input>
+        <paper-button raised on-click="_ophalen_leerlingen_initializing" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
+        <paper-button raised on-click="_opslaan_leerlingen_initializing" style="margin-top: 18px; margin-left: 440px">opslaan</paper-button>
         
         <!-- !! lijst van leerlingen !! -->
-        <!-- <iron-list items="[[leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <iron-list items="[[c_leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
                 <template>
                   <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
                         <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
-                        <h style="font-size: 15px; margin-bottom: 20px">[[leerling.name]], [[leerling.StudentNummer]]</h>
+                        <h style="font-size: 15px; margin-bottom: 20px">[[leerling.naam]], [[leerling.studentNummer]]</h>
                         <paper-dropdown-menu label="aanwezigheid" noink no-animations style="float: right">
-                          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezig}}" attr-for-selected="data-item">
+                          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezigheid}}" attr-for-selected="data-item">
                             <paper-item data-item="Aanwezig">Aanwezig</paper-item>
-                            <paper-item data-item="Ziek / afwezig met reden">Ziek / afwezig met reden</paper-item>
-                            <paper-item data-item="Afwezig zonder reden" style="color: red">Afwezig zonder reden</paper-item>
+                            <paper-item data-item="Ziek / afwezig met reden"> Ziek / afwezig met reden </paper-item>
+                            <paper-item data-item="Afwezig zonder reden" style="color: red"> Afwezig zonder reden </paper-item>
                           </paper-listbox>
                         </paper-dropdown-menu><br>
                   </div>
                 </template>
-        </iron-list> -->
-    </div> 
-    <app-localstorage-document key="leerlingen" data="{{leerlingen}}"></app-localstorage-document> 
+        </iron-list>
+    </div>   
+
+    
+    <app-localstorage-document key="leerlingen" data="{{c_leerlingen}}"></app-localstorage-document> 
     <app-localstorage-document key="roosterDocent" data="{{c_roosterDocent}}"></app-localstorage-document> 
 
     <iron-ajax
@@ -83,12 +92,20 @@
     </iron-ajax>
 
     <iron-ajax
-      id="presentie_doorgeven"
+      id="ajax_lijst_leerlingen"
       method="POST"
-      url="/student/afwezigheid/doorgeven"
+      url="/docent/klas"
       handle-as="json"
-      on-response="_student_afwezigheid_response_handler">
+      on-response="_ophalen_leerlingen_response_handler">
     </iron-ajax>
+
+    <iron-ajax
+    id="ajax_lijst_leerlingen_opslaan"
+    method="POST"
+    url="/docent/klasopslaan"
+    handle-as="json"
+    on-response="_opslaan_leerlingen_response_handler">
+  </iron-ajax>
   </template>
 
   <script>
@@ -103,6 +120,12 @@
         is: 'my-docenten',
 
         properties: {
+          lesCode:{
+            type: String
+          },
+          c_leerlingen: {
+            type: Array
+          },
           c_roosterDocent: {
             type: Array
           },
@@ -152,6 +175,11 @@
       //   };
       // },
 
+      _aanwezigheid_init(e){
+        console.log("[aanwezigheid init]")
+        console.log(e.target.getAttribute('data-args'));
+      },  
+      
       _go_home: function() {
           var lApp = document.querySelector('my-app');  //het polymer element <my-app>
           var lAppRouter = lApp.$.approuter;            // het html-element <app-route> met id=approuter
@@ -159,12 +187,12 @@
                                                         // door de two way binding in <app-route> en <app-location>
                                                         // zal ook de url echt wijzigen
         },
+
+        // ROOSTER OPHALEN
         
         _initializing : function() {
-          console.log("init docent");
           if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
-            if (this.c_rol=="docent") {   
-              console.log("is docent")                     // voor studenten
+            if (this.c_rol=="docent") {                     // voor studenten
               this._rooster_ophalen_request_handler();    //    haal info op van server
           } else {                                            // na handmatige url wijziging zonder login
               var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
@@ -189,22 +217,76 @@
           this.c_roosterDocent= request.detail.response;
         },
 
-        _student_afwezigheid_request_handler: function() {
-          console.log("Afwezigheid doorgeven test!");
-          this.$.presentie_doorgeven.contentType="application/json";
-          this.$.presentie_doorgeven.body={
-            "username":this.c_username,
-            "vak":this.c_rooster["vak"],
-            "lokaal":this.c_rooster.lokaal,
-            "docent":this.c_rooster.docent
-          };
-          this.$.presentie_doorgeven.generateRequest();
+        // LEERLIGNEN OPHALEN
+
+        _ophalen_leerlingen_initializing : function() {
+          console.log("[init leerlingen ophalen] ");
+          if (this.c_visible) {                             // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="docent") {                     // voor studenten
+              this._leerlingen_ophalen_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
+          }
         },
-        
-        _student_afwezigheid_response_handler: function(request) {
-          console.log("Presentie ingestuurd!");
-          // this._go_home();		/* verlaat de pagina en ga terug naar home page */
+
+        _leerlingen_ophalen_request_handler: function() {
+          console.log("[leerlingen handler] ");
+          
+          var les = this.c_roosterDocent[this.lesCode];
+          console.log("[leerlingen handler] " + les.vak);
+
+          var vak = les.vak;
+          var klas = les.klas;
+          var datum = les.datum;
+
+           this.$.ajax_lijst_leerlingen.contentType="application/json";
+           this.$.ajax_lijst_leerlingen.body={
+             "vak": vak,
+             "klas": klas,
+             "datum": datum
+           };
+          console.log( this.$.ajax_lijst_leerlingen.body);
+          this.$.ajax_lijst_leerlingen.generateRequest();
         },
+
+        _ophalen_leerlingen_response_handler: function(request) {
+          console.log("haal de JSON op.")
+          console.log(request.detail.response);
+          this.c_leerlingen= request.detail.response;
+        },
+
+        //LEERLINGEN OPSLAAN
+
+        _opslaan_leerlingen_initializing : function() {
+          console.log("[init leerlingen opslaan] ");
+          if (this.c_visible) {                             // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="docent") {                     // voor studenten
+              this._leerlingen_opslaan_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
+          }
+        },
+
+        _leerlingen_opslaan_request_handler: function() {
+          console.log("[leerlingen opslaan handler] ");
+
+           this.$.ajax_lijst_leerlingen_opslaan.contentType="application/json";
+           console.log(this.c_leerlingen);
+          //  this.c_leerlingen.push("TEST");
+           this.$.ajax_lijst_leerlingen_opslaan.body=this.c_leerlingen;
+          console.log( this.$.ajax_lijst_leerlingen_opslaan.body);
+          this.$.ajax_lijst_leerlingen_opslaan.generateRequest();
+        },
+
+        _opslaan_leerlingen_response_handler: function(request) {
+          console.log("[leerlingen opslaan responsehandler] Lijst is opgeslagen");
+        },
+
+        //_------------------------------------------------------------------------------
         
         _toast_clicked: function(e) {
          var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep

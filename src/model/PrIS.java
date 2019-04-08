@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -107,7 +108,11 @@ public class PrIS {
 	public Klas getKlasVanStudent(Student pStudent) {
 		return deKlassen.stream().filter(k -> k.bevatStudent(pStudent)).findFirst().orElse(null);
 	}
-
+	
+	public ArrayList<Klas> getKlassen(){
+		return deKlassen;
+	}
+	
 	public Student getStudent(String pGebruikersnaam) {
 		return deStudenten.stream().filter(s -> s.getGebruikersnaam().equals(pGebruikersnaam)).findFirst().orElse(null);
 	}
@@ -285,10 +290,26 @@ public class PrIS {
 				String grootte = element[15].replace("\"", "");
 				String opmerking = element[16].replace("\"", "");
 				
+				ArrayList<String> leerlingen = new ArrayList<String>();
+				for(Klas klas : deKlassen) {
+					String klasCodeZoek = klas.getKlasCode();
+					if(groep.equals(klasCodeZoek)) {
+						List<Student> lijstLeerlingen = klas.getStudenten();
+						for(Student leerling : lijstLeerlingen) {
+							String lnaam = leerling.getVoornaam() + " " + leerling.getVolledigeAchternaam();
+							String lnummer = Integer.toString(leerling.getStudentNummer());
+							leerlingen.add(lnaam);
+							leerlingen.add(lnummer);
+							leerlingen.add("Aanwezig");
+						}
+					}
+				}
+				System.out.println("[PRIS les] " + groep + "  -  " + leerlingen);
+				
 				//Toevoegen tijdelijk les object
 				Les lesHolder = new Les(naam, cursusCode, startWeek, startDag, startDatum, startTijd,
 						eindDag, eindDatum, eindTijd, duur, werkVorm, docent, lokaalNummer, groep,
-						faculteit, grootte, opmerking);
+						faculteit, grootte, opmerking, leerlingen);
 				
 				//Toevoegen aan het rooster
 				hetRooster.voegLesToe(lesHolder);
