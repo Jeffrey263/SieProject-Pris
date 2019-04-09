@@ -9,7 +9,11 @@
         
         <div class="card">
             <h1>Hallo, [[c_voornaam]]!</h1>
-            <p>Op deze pagina kun je jouw info inzien.</p>
+            <p>Op deze pagina kun je jouw informatie inzien.</p>
+            <hr>
+            <p>Volledige naam: [[c_voornaam]] [[c_achternaam]]</p>
+            <p>Studentnummer: [[c_studentNummer]]</p>
+            <p>Klas: [[c_klasNaam]]</p>
         </div>
 
         <iron-ajax
@@ -54,7 +58,7 @@
                 type: String
             },
             c_studentNummer: {
-                type: String
+                type: Number
             },
             c_klasNaam: {
                 type: String
@@ -91,10 +95,10 @@
 
         _student_info_rooster_response_handler: function(request) {
           console.log(request.detail.response);
-          console.log(request.detail.response.voornaam);
-          var responseArray = request.detail.response;
-          this.c_voornaam = responseArray['voornaam'];
-          console.log(c_voornaam);
+          this.c_voornaam = request.detail.response[0].voornaam;
+          this.c_achternaam = request.detail.response[0].achternaam;
+          this.c_studentNummer = request.detail.response[0].studentNummer;
+          this.c_klasNaam = request.detail.response[0].klasNaam;
         },
         });
       })();

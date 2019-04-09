@@ -56,8 +56,6 @@ public class Application {
 		server.registerHandler("/docent/klas", getLeerlingenController);
 		server.registerHandler("/docent/klasopslaan", opslaanLeerlingenController);
 
->>>>>>> 54c61fadb95fab6ad9ae34a5937eec502ea1c8c7
-		server.registerHandler("/student/afwezigheid/doorgeven", afwezigheidController);
 		server.registerHandler("/student/info/opvragen", studentInfoController);
 
 		server.start();
