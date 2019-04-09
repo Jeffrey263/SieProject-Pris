@@ -50,19 +50,13 @@
                     <h>[[les.vak]]</h><br>
                     <h>[[les.klas]]</h><br>
                     <h>[[les.datum]]</h><br>
-                    <h>lescode: [[les.lescode]]</h><br>
-                    <paper-button on-tap="_get_statistiek" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
+                    <paper-button on-tap="_leerlingen_ophalen_request_handler" style="margin-top: 18px; margin-left: 14px">Bekijk statistieken</paper-button>
               </div>
             </template>
     </iron-list>
     </div>  
     <hr>
     <div>
-        <h1>afwezigheid afnemen</h1>
-        <paper-input id="lesCode" label="lescode" value="{{lesCode}}" style="width: 70px; float: left"></paper-input>
-        <paper-button raised on-click="_ophalen_leerlingen_initializing" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
-        <paper-button raised on-click="_opslaan_leerlingen_initializing" style="margin-top: 18px; margin-left: 440px">opslaan</paper-button>
-        
         <iron-list items="[[c_leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
           <template>
             <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
@@ -200,22 +194,14 @@
             }
           }
         },
-        _get_statistiek : function(e) {
+        _leerlingen_ophalen_request_handler : function(e) {
            var item = e.model.les;
-           console.log(item.datum)
-
-          var les = this.c_roosterDocent[item.lesCode];
-          console.log(les);
-
-          var vak = les.vak;
-          var klas = les.klas;
-          var datum = les.datum;
 
            this.$.ajax_lijst_leerlingen.contentType="application/json";
            this.$.ajax_lijst_leerlingen.body={
-             "vak": vak,
-             "klas": klas,
-             "datum": datum
+             "vak": item.vak,
+             "klas": item.klas,
+             "datum": item.datum
            };
           console.log( this.$.ajax_lijst_leerlingen.body);
           this.$.ajax_lijst_leerlingen.generateRequest();
@@ -229,30 +215,21 @@
            }
         },
 
-        _leerlingen_ophalen_request_handler: function() {
-          console.log("[leerlingen handler] ");
-          
-          var les = this.c_roosterDocent[this.lesCode];
-          console.log("[leerlingen handler] " + les.vak);
-
-          var vak = les.vak;
-          var klas = les.klas;
-          var datum = les.datum;
-
-           this.$.ajax_lijst_leerlingen.contentType="application/json";
-           this.$.ajax_lijst_leerlingen.body={
-             "vak": vak,
-             "klas": klas,
-             "datum": datum
-           };
-          console.log( this.$.ajax_lijst_leerlingen.body);
-          this.$.ajax_lijst_leerlingen.generateRequest();
-        },
-
         _ophalen_leerlingen_response_handler: function(request) {
           console.log("haal de JSON op.")
-          console.log(request.detail.response);
           this.c_leerlingen= request.detail.response;
+          console.log(this.c_leerlingen);
+          this._get_statistiek(); 
+        },
+
+        _get_statistiek : function() {
+           var aanwezig = 0;
+           for (var i = this.c_leerlingen.length - 1; i >= 0; i--) {
+              if (this.c_leerlingen[i].aanwezigheid == "Aanwezig") {
+                  aanwezig += 1;
+              }
+           }
+           console.log("Aanwezig: " + aanwezig + " - Afwezig: " + (this.c_leerlingen.length - aanwezig));
         },
 
         //LEERLINGEN OPSLAAN
