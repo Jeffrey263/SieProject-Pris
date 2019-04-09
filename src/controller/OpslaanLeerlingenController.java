@@ -80,6 +80,7 @@ public class OpslaanLeerlingenController implements Handler{
 		
 		
 		System.out.println("[leerlingenOpslaan] " + leerlingen);
+	
 		activeLes.setLeerlingen(leerlingen);	
 		
 		conversation.sendJSONMessage("opgeslagen"); // terugsturen naar de Polymer-GUI!	

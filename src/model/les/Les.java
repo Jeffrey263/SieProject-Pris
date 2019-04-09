@@ -55,6 +55,16 @@ public class Les {
 	}
 	
 	public ArrayList<String> getLeerlingenVanLes(){
+		int i = 0;
+		while(i<leerlingen.size()) {
+			for(Student leerling : deAfwezigen) {
+				String lnaam = leerling.getVoornaam() + " " + leerling.getVolledigeAchternaam();
+				if (leerlingen.get(i).equals(lnaam)){
+					leerlingen.set(i+2, "Ziek / afwezig met reden");
+				}
+			}
+			i = i+3;
+		}
 		return leerlingen;
 	}
 	
@@ -91,7 +101,10 @@ public class Les {
 	}
 	
 	public void afwezigVerwijderen(Student student) {
-		deAfwezigen.remove(student);
+		if(deAfwezigen.contains(student)) {
+			System.out.println("[les] " + student.getVoornaam() + " staat nu op aanwezig");
+			deAfwezigen.remove(student);
+		}
 	}
 	
 	public ArrayList<Student> getAfwezigen() {
