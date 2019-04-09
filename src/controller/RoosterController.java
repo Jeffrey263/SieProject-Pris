@@ -61,7 +61,12 @@ public class RoosterController implements Handler{
 				.add("vak", les.getVak())
 				.add("lokaal", les.getLokaal())
 				.add("docent", les.getDocent())
-				.add("aanwezig", true);
+				.add("klas", les.getKlas());
+				if(les.getAfwezigen().contains(lStudentZelf)) {
+					lJsonObjectBuilderVoorStudent.add("aanwezigheid", "false");
+				} else {
+					lJsonObjectBuilderVoorStudent.add("aanwezigheid", "true");
+				}
 				lJsonArrayBuilder.add(lJsonObjectBuilderVoorStudent); // voeg toe aan de JsonArray die wordt teruggestuurd naar de front-end/Polymer-GUI
 			}
 	

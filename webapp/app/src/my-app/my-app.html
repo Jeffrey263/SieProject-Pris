@@ -236,8 +236,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- element$="none" of weglaten van element$ geeft beide aan dat er geen polymerElement gebruikt zal gaan worden -->
         <section page-name="home" title="HOME" element$="none">
           <paper-material elevation="1">
-              <p>Demo app gebaseerd op Polymer.</p>
-              <p>Deze app past nadat je bent ingelogged het menu aan, aan de rol die gekoppeld is aan de ingeloggede user.</p>
+              <h1>Welkom bij P.R.I.S. (Presentie Registratie Informatie Systeem)</h1>
+              <p>Dit (web-based)systeem past zich aan d.m.v. het inloggen van de gebruiker, log alstublieft in om al uw functies te kunnen gebruiken.</p>
           </paper-material>
         </section>
 
@@ -290,17 +290,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-material>
         </section>
 
+        
+        <section  page-name="my_statistiek_docenten" 
+                  title="DOCENTENSTATISTIEK" 
+                  element$="my-statistiek-docenten">
+          <paper-material elevation="1">
+            <my-statistiek-docenten
+              c_visible="[[_are_strings_equal(_ar_page, 'my_statistiek_docenten')]]"
+              c_rol="[[_rol]]"
+              c_username="[[_username]]"
+              c_systeemdatum="[[_systeemdatumstandaard]]"
+            ></my-statistiek-docenten>
+          </paper-material>
+        </section>
+
         <section page-name="temp_docent_overzicht" title="DOCENTEN-OVERZICHT" element$="temp-docent-overzicht">
             <paper-material elevation="1">
             <temp-docent-overzicht></temp-docent-overzicht>
             </paper-material>
           </section>
 
-        <section page-name="my_statistiek_docenten" title="DOCENTEN-STAT" element$="my-statistiek-docenten">
-          <paper-material elevation="1">
-          <my-statistiek-docenten></my-statistiek-docenten>
-          </paper-material>
-        </section>
 
  <!-- sections voor student -->
           <section  page-name="student_medestudenten"

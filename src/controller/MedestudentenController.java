@@ -111,7 +111,7 @@ public class MedestudentenController implements Handler {
     		int lStudentNummer = lGroepMember_jsonObj.getInt("id");
     		boolean lZelfdeGroep = lGroepMember_jsonObj.getBoolean("sameGroup");
     		if (lZelfdeGroep) {
-    			Student lGroepStudent = informatieSysteem.getStudent(lStudentNummer);
+    			Student lGroepStudent = informatieSysteem.getStudentByNummer(lStudentNummer);
      		  lGroepStudent.setGroepId(lGroepId);
     		}
     	}
