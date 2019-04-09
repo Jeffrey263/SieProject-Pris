@@ -117,7 +117,7 @@ public class PrIS {
 		return deStudenten.stream().filter(s -> s.getGebruikersnaam().equals(pGebruikersnaam)).findFirst().orElse(null);
 	}
 
-	public Student getStudent(int pStudentNummer) {
+	public Student getStudentByNummer(int pStudentNummer) {
 		return deStudenten.stream().filter(s -> s.getStudentNummer() == pStudentNummer).findFirst().orElse(null);
 	}
 

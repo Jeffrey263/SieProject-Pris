@@ -90,6 +90,14 @@ public class Les {
 		deAfwezigen.add(student);
 	}
 	
+	public void afwezigVerwijderen(Student student) {
+		deAfwezigen.remove(student);
+	}
+	
+	public ArrayList<Student> getAfwezigen() {
+		return deAfwezigen;
+	}
+	
 	public String toString() {
 		return naam + " is de naam van deze instantie Les!";
 	}
