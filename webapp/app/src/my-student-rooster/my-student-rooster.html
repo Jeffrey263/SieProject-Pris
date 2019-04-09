@@ -31,6 +31,7 @@
             display: none;
           };
       }
+      .v-grid-row :hover {z-index:1000;} 
 
       .my-button {
       width: 100%;
@@ -53,14 +54,16 @@
             <p>Hier kunt u uw rooster inzien en aanwezigheid doorgeven.</p>
             <vaadin-grid id="grid" class="table" is="dom-repeat" items="{{c_rooster}}" column-rendering-allowed multi-sort>
               <vaadin-grid-column>
-                  <template class="header">
-                      <vaadin-grid-sorter path="aanwezigheid">Aanwezig</vaadin-grid-sorter>
-                    </template>
-                  <template>
-                      <paper-input value="{{item.aanwezig}}"></paper-input>
+                <template class="header">
+                    <vaadin-grid-sorter path="aanwezigheid">Aanwezig</vaadin-grid-sorter>
                   </template>
-
-                </vaadin-grid-column>        
+                <template>
+                  <paper-radio-group label="aanwezigheid" selected= {{item.aanwezigheid}}>
+                    <paper-radio-button name="true">Ja</paper-radio-button>
+                    <paper-radio-button name="false">Nee</paper-radio-button>
+                  </paper-radio-group>
+                </template>
+              </vaadin-grid-column>        
             
               <vaadin-grid-column>
                   <template class="header">
@@ -209,10 +212,8 @@
           console.log("Afwezigheid doorgeven test!");
           this.$.presentie_doorgeven.contentType="application/json";
           this.$.presentie_doorgeven.body={
-            "username":this.c_username,
-            "vak":this.c_rooster["vak"],
-            "lokaal":this.c_rooster.lokaal,
-            "docent":this.c_rooster.docent
+            "info":this.c_rooster,
+            "username":this.c_username
           };
           this.$.presentie_doorgeven.generateRequest();
         },

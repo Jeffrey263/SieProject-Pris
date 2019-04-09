@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 import model.PrIS;
 import model.klas.Klas;
@@ -33,21 +34,33 @@ public class AfwezigheidController implements Handler {
 		System.out.println(lJsonObjectIn);
 		Rooster hetRooster = informatieSysteem.getRooster();
 		String lGebruikersnaam = lJsonObjectIn.getString("username");
-		String lKlas;
-		String lNaam;
-		String lDatum;
 		Student lStudentZelf = informatieSysteem.getStudent(lGebruikersnaam);
-//		JsonArray jsonArray = lJsonObjectIn.getJsonArray("info");
-//		System.out.println(jsonArray);
-//		ArrayList<String> deLessen = new ArrayList<String>();
-//		for(int i=0; i<jsonArray.size(); i++) {
-//			deLessen.add(jsonArray.getJsonObject(i).toString());
-//		}
-//		System.out.println(deLessen);
-//		Les deLes = hetRooster.getLesByInfo(klas, naam, datum);
-//		deLes.afwezigToevoegen(lStudentZelf);
-		
-		
+		JsonArray jsonArray = lJsonObjectIn.getJsonArray("info");
+		for(int i=0; i<jsonArray.size(); i++) {
+			JsonObject lesInfo = (JsonObject) jsonArray.get(i);
+			if(lesInfo.getString("aanwezigheid").equals("false")) {
+				String klas = lesInfo.getString("klas");
+				String naam = lesInfo.getString("vak");
+				String datum = lesInfo.getString("datum");
+				
+				
+				///De les ophalen en vervolgens de functie afwezigToevoegen gebruiken om de ingelogde student toe te voegen
+				Les deLes = hetRooster.getLesByInfo(klas, naam, datum);
+				deLes.afwezigToevoegen(lStudentZelf);
+				System.out.println("Op afwezig gezet!");
+			}
+			if(lesInfo.getString("aanwezigheid").equals("true")) {
+				String klas = lesInfo.getString("klas");
+				String naam = lesInfo.getString("vak");
+				String datum = lesInfo.getString("datum");
+				
+				///De les ophalen en vervolgens de functie afwezigToevoegen gebruiken om de ingelogde student toe te voegen
+				Les deLes = hetRooster.getLesByInfo(klas, naam, datum);
+				if(deLes.getAfwezigen().contains(lStudentZelf)) {
+					deLes.afwezigVerwijderen(lStudentZelf);
+					System.out.println("Op aanwezig gezet!");
+				}
+			}
+		}	
 	}
-
 }
