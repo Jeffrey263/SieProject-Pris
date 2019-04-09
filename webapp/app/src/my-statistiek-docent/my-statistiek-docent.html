@@ -40,16 +40,18 @@
 
     <div>
         <h1>Docenten rooster</h1>
-        <p>welkom [[c_username]]</p>
-
+        <p>welkom [[c_username]]</p><br>
+        <paper-button raised on-click="_krijg_rooster" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
+        <br>
         <!-- lijst van lessen -->
-        <iron-list items="[[c_roosterDocent]]" as="les" style="background-color: white; height: 300px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+        <iron-list items="[[rooster]]" as="les" style="background-color: white; height: 300px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
             <template>
               <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
                     <h>[[les.vak]]</h><br>
                     <h>[[les.klas]]</h><br>
                     <h>[[les.datum]]</h><br>
                     <h>lescode: [[les.lescode]]</h><br>
+                    <paper-button on-tap="_get_statistiek" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
               </div>
             </template>
     </iron-list>
@@ -61,22 +63,14 @@
         <paper-button raised on-click="_ophalen_leerlingen_initializing" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
         <paper-button raised on-click="_opslaan_leerlingen_initializing" style="margin-top: 18px; margin-left: 440px">opslaan</paper-button>
         
-        <!-- !! lijst van leerlingen !! -->
         <iron-list items="[[c_leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
-                <template>
-                  <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
-                        <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
-                        <h style="font-size: 15px; margin-bottom: 20px">[[leerling.naam]], [[leerling.studentNummer]]</h>
-                        <paper-dropdown-menu label="aanwezigheid" noink no-animations style="float: right">
-                          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{leerling.aanwezigheid}}" attr-for-selected="data-item">
-                            <paper-item data-item="Aanwezig">Aanwezig</paper-item>
-                            <paper-item data-item="Ziek / afwezig met reden"> Ziek / afwezig met reden </paper-item>
-                            <paper-item data-item="Afwezig zonder reden" style="color: red"> Afwezig zonder reden </paper-item>
-                          </paper-listbox>
-                        </paper-dropdown-menu><br>
-                  </div>
-                </template>
-        </iron-list>
+          <template>
+            <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
+                  <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
+                  <h style="font-size: 15px; margin-bottom: 20px">[[leerling.naam]], [[leerling.studentNummer]]</h>
+            </div>
+          </template>
+      </iron-list>
     </div>   
 
     
@@ -86,7 +80,7 @@
     <iron-ajax
       id="ajax_rooster_docent_statistiek"
       method="POST"
-      url="/docent/roosterstatistiek"
+      url="/docent/rooster"
       handle-as="json"
       on-response="_ophalen_rooster_response_handler">
     </iron-ajax>
@@ -122,6 +116,9 @@
         properties: {
           lesCode:{
             type: String
+          },
+          rooster: {
+            type: Array
           },
           c_leerlingen: {
             type: Array
@@ -202,6 +199,34 @@
                                                                 /* terug naar home page */
             }
           }
+        },
+        _get_statistiek : function(e) {
+           var item = e.model.les;
+           console.log(item.datum)
+
+          var les = this.c_roosterDocent[item.lesCode];
+          console.log(les);
+
+          var vak = les.vak;
+          var klas = les.klas;
+          var datum = les.datum;
+
+           this.$.ajax_lijst_leerlingen.contentType="application/json";
+           this.$.ajax_lijst_leerlingen.body={
+             "vak": vak,
+             "klas": klas,
+             "datum": datum
+           };
+          console.log( this.$.ajax_lijst_leerlingen.body);
+          this.$.ajax_lijst_leerlingen.generateRequest();
+        },
+        _krijg_rooster : function() {
+           this.rooster = this.c_roosterDocent;
+           for (var i = this.rooster.length - 1; i >= 0; i--) {
+              //if (!(this.rooster[i].docent == this.naam)) {
+              //    this.rooster.splice(i, 1);
+              //}
+           }
         },
 
         _leerlingen_ophalen_request_handler: function() {
