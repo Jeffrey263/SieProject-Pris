@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/highcharts-chart/highcharts-chart.html">
 
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
@@ -32,8 +33,33 @@
             display: block;
             width: 900px;
             padding: 10px;
-        }     
+        }
+        #aanwezig {
+          background-color: green;
+          color: black;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        } 
+        #afwezig {
+          background-color: red;
+          color: black;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        } 
+        #statlabel {
+          color: black;
+          margin-right: 50px;
+        } 
+        #first {
+          width: 80px;
+          float: left;
+        }
+        #second {
+            float: left;
+        }
     </style>
+
+
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -41,7 +67,7 @@
     <div>
         <h1>Docenten rooster</h1>
         <p>welkom [[c_username]]</p><br>
-        <paper-button raised on-click="_krijg_rooster" style="margin-top: 18px; margin-left: 14px">afwezigheid afnemen</paper-button>
+        <paper-button raised on-click="_krijg_rooster" style="margin-top: 18px; margin-left: 14px">Bekijk lessen</paper-button>
         <br>
         <!-- lijst van lessen -->
         <iron-list items="[[rooster]]" as="les" style="background-color: white; height: 300px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
@@ -56,16 +82,17 @@
     </iron-list>
     </div>  
     <hr>
-    <div>
-        <iron-list items="[[c_leerlingen]]" as="leerling" style="background-color: white; height: 500px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
-          <template>
-            <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
-                  <iron-icon icon="account-box" style="margin-right: 10px; height: 90px; width: 90px; margin-top: 12px; margin-bottom: 32px"> </iron-icon>
-                  <h style="font-size: 15px; margin-bottom: 20px">[[leerling.naam]], [[leerling.studentNummer]]</h>
-            </div>
-          </template>
-      </iron-list>
-    </div>   
+    <div class="block" style="width: 750px; height: 100px; padding: 10px; background-color: white;">
+    
+    <div id="first">
+      <h id="statlabel">Aanwezig:</h><br><br><br>
+      <h id="statlabel">Afwezig:</h>
+    </div>
+    <div id="second">
+      <label id="aanwezig" style$="{{sizeAanwezig}}}">[[totaanwezig]]</label><br><br><br>  
+      <label id="afwezig" style$="{{sizeAfwezig}}}">[[totafwezig]]</label>
+    </div>
+    </div>
 
     
     <app-localstorage-document key="leerlingen" data="{{c_leerlingen}}"></app-localstorage-document> 
@@ -109,6 +136,24 @@
 
         properties: {
           lesCode:{
+            type: String
+          },
+          totaanwezig:{
+            type: String
+          },
+          aanwezigperc:{
+            type: String
+          },
+          afwezigperc:{
+            type: String
+          },
+          sizeAanwezig:{
+            type: String
+          },
+          sizeAfwezig:{
+            type: String
+          },
+          totafwezig:{
             type: String
           },
           rooster: {
@@ -166,7 +211,6 @@
         },
        
         _rooster_ophalen_request_handler: function() {
-          console.log("hooft!");
           this.$.ajax_rooster_docent_statistiek.contentType="application/json";
           this.$.ajax_rooster_docent_statistiek.body={
             "username":this.c_username,
@@ -229,36 +273,17 @@
                   aanwezig += 1;
               }
            }
+           this.totaanwezig = aanwezig;
+           this.totafwezig = (this.c_leerlingen.length - aanwezig);
+           var total = this.totaanwezig + this.totafwezig;
+           var percaanwezig = (this.totaanwezig / total) * 100;
+           var percafwezig = (this.totafwezig / total) * 100;
+           var grootte = 650;
+           this.sizeAanwezig = "padding-right: " + ((grootte / 100) * percaanwezig) + "px;";
+           this.sizeAfwezig = "padding-right: " + ((grootte / 100) * percafwezig)+ "px;";
+           this.aanwezigperc = percaanwezig;
+           this.afwezigperc = percafwezig;
            console.log("Aanwezig: " + aanwezig + " - Afwezig: " + (this.c_leerlingen.length - aanwezig));
-        },
-
-        //LEERLINGEN OPSLAAN
-
-        _opslaan_leerlingen_initializing : function() {
-          console.log("[init leerlingen opslaan] ");
-          if (this.c_visible) {                             // zodra zichtbaar geworden moet er wat worden gedaan
-            if (this.c_rol=="docent") {                     // voor studenten
-              this._leerlingen_opslaan_request_handler();    //    haal info op van server
-          } else {                                            // na handmatige url wijziging zonder login
-              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
-                                                                /* terug naar home page */
-            }
-          }
-        },
-
-        _leerlingen_opslaan_request_handler: function() {
-          console.log("[leerlingen opslaan handler] ");
-
-           this.$.ajax_lijst_leerlingen_opslaan.contentType="application/json";
-           console.log(this.c_leerlingen);
-          //  this.c_leerlingen.push("TEST");
-           this.$.ajax_lijst_leerlingen_opslaan.body=this.c_leerlingen;
-          console.log( this.$.ajax_lijst_leerlingen_opslaan.body);
-          this.$.ajax_lijst_leerlingen_opslaan.generateRequest();
-        },
-
-        _opslaan_leerlingen_response_handler: function(request) {
-          console.log("[leerlingen opslaan responsehandler] Lijst is opgeslagen");
         },
 
         //_------------------------------------------------------------------------------
