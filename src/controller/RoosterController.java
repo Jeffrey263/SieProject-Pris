@@ -67,6 +67,7 @@ public class RoosterController implements Handler{
 				} else {
 					lJsonObjectBuilderVoorStudent.add("aanwezigheid", "true");
 				}
+				System.out.println(les.getLeerlingenVanLes().toString());
 				lJsonArrayBuilder.add(lJsonObjectBuilderVoorStudent); // voeg toe aan de JsonArray die wordt teruggestuurd naar de front-end/Polymer-GUI
 			}
 	
