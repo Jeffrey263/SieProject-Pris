@@ -6,10 +6,11 @@
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-date-picker-item/paper-date-picker-item.html">
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/highcharts-chart/highcharts-chart.html">
 
 
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
@@ -32,49 +33,97 @@
             display: block;
             width: 900px;
             padding: 10px;
-        }     
+        }
+        #aanwezig {
+          background-color: green;
+          color: black;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        } 
+        #afwezig {
+          background-color: red;
+          color: black;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        } 
+        #statlabel {
+          color: black;
+          margin-right: 50px;
+        } 
+        #first {
+          width: 80px;
+          float: left;
+        }
+        #second {
+            float: left;
+        }
     </style>
+
+
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
     <div>
-        <h1>Docenten pagina</h1>
-        <paper-datetime-picker-item
-        icon="icons:today"
-        placeholder="Add date and time"
-        date-format="Do, MMMM, YYYY">
-    </paper-datetime-picker-item>
-        <paper-dropdown-menu label="Klas" noink no-animations>
-          <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
-            <paper-item>V1A</paper-item>
-            <paper-item>V1B</paper-item>
-            <paper-item>V1C</paper-item>
-            <paper-item>V1D</paper-item>
-            <paper-item>V1E</paper-item>
-          </paper-listbox>
-        </paper-dropdown-menu>
-        
-        <!-- !! lijst van lessen !! <h1>[[item.docent]] [[naam]]</h1> -->
-          <template is="dom-repeat" items="{{rooster}}">
+        <h1>Docenten rooster</h1>
+        <p>welkom [[c_username]]</p>
+        <paper-button raised on-click="_krijg_rooster" style="margin-top: 18px; margin-left: 14px">Bekijk lessen</paper-button>
+        <br>
+        <!-- lijst van lessen -->
+        <iron-list items="[[rooster]]" as="les" style="background-color: white; height: 300px;width:750px; padding: 20px; margin-bottom: 20px; margin-top: 20px">
+            <template>
+              <div class="block" style="width: 700px; padding: 10px; border-bottom: 1px solid grey;">
+                    <h>[[les.vak]]</h><br>
+                    <h>[[les.klas]]</h><br>
+                    <h>[[les.datum]]</h><br>
+                    <paper-button on-tap="_leerlingen_ophalen_request_handler" style="margin-top: 18px; margin-left: 14px">Bekijk statistieken</paper-button>
+              </div>
+            </template>
+    </iron-list>
+    </div>  
+    <hr>
+    <div class="block" style="width: 750px; height: 100px; padding: 10px; background-color: white;">
+    
+    <div id="first">
+      <h id="statlabel">Aanwezig:</h><br><br><br>
+      <h id="statlabel">Afwezig:</h>
+    </div>
+    <div id="second">
+      <label id="aanwezig" style$="{{sizeAanwezig}}}">[[totaanwezig]]</label><br><br><br>  
+      <label id="afwezig" style$="{{sizeAfwezig}}}">[[totafwezig]]</label>
+    </div>
+    </div>
 
-                <div class="block" style="width: 200px; height: 200px; padding: 10px; border-bottom: 1px solid grey;">
-                    <div class="block" style="width: 180px; height: 20px; padding: 10px; background-color: white;">
-                        <h style="font-size: 15px; margin-bottom: 20px">[[item.starttijd]] - [[item.eindtijd]]</h>
-                    </div>
-                    <h style="font-size: 15px; margin-bottom: 20px">[[item.docent]]<br>[[item.startdatum]]<br>[[item.vakcode]]</h>
-                    <br><br>
-                    <paper-button raised on-click="loadHandler">naar statestiek</paper-button>
-                </div>
-                
-          </template>
-        <paper-button raised on-click="loadHandler">Laad Rooster</paper-button>
-    </div> 
-    <app-localstorage-document key="rooster" data="{{rooster}}"></app-localstorage-document> 
+    
+    <app-localstorage-document key="leerlingen" data="{{c_leerlingen}}"></app-localstorage-document> 
+    <app-localstorage-document key="roosterDocent" data="{{c_roosterDocent}}"></app-localstorage-document> 
+
+    <iron-ajax
+      id="ajax_rooster_docent_statistiek"
+      method="POST"
+      url="/docent/rooster"
+      handle-as="json"
+      on-response="_ophalen_rooster_response_handler">
+    </iron-ajax>
+
+    <iron-ajax
+      id="ajax_lijst_leerlingen"
+      method="POST"
+      url="/docent/klas"
+      handle-as="json"
+      on-response="_ophalen_leerlingen_response_handler">
+    </iron-ajax>
+
+    <iron-ajax
+    id="ajax_lijst_leerlingen_opslaan"
+    method="POST"
+    url="/docent/klasopslaan"
+    handle-as="json"
+    on-response="_opslaan_leerlingen_response_handler">
+  </iron-ajax>
   </template>
 
   <script>
-
     (function() {
       'use strict';
       /* _xxxx private              : geen external data binding      - geen notify
@@ -85,53 +134,171 @@
       Polymer({
         is: 'my-statistiek-docenten',
 
-        get properties(){
-        return{
-            lessen:{
-                type: Array,
-                notify: true,
-                value: [                 
-                  {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-04", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-04", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "sanne.veroude@hu.nl", startdatum: "2019-02-04", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl", startdatum: "2019-02-04", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-02-05", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-02-05", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-05", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-05", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-05", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-06", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-02-06", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-02-06", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-06", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-06", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-06", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-07", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-07", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-07", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-07", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-07", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-08", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-02-08", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "sanne.veroude@hu.nl", startdatum: "2019-02-08", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-02-08", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-08", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-08", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-11", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-11", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "iris.dekort@hu.nl, mariecke.schipper@hu.nl, nini.salet@hu.nl", startdatum: "2019-02-11", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1PTW-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "sanne.veroude@hu.nl", startdatum: "2019-02-11", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl", startdatum: "2019-02-11", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-12", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-12", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-12", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "matthijs.smakman@hu.nl, peter.vanrooijen@hu.nl, rein.kamphuis@hu.nl", startdatum: "2019-02-12", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-02-12", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-12", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-12", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-12", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "dan.greve@hu.nl, nini.salet@hu.nl", startdatum: "2019-02-12", starttijd: "17:30", eindtijd: "19:00", vakcode: "TICT-V1ICOR-16_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-13", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-02-13", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-02-13", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-13", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-13", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-13", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-13", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-14", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-14", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "iris.dekort@hu.nl, nini.salet@hu.nl", startdatum: "2019-02-14", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1PTW-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-14", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1MOD-15_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-14", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-02-15", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "sanne.veroude@hu.nl", startdatum: "2019-02-15", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-02-15", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-15", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-15", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-18", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-18", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "sanne.veroude@hu.nl", startdatum: "2019-02-18", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl", startdatum: "2019-02-18", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-19", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-19", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "", startdatum: "2019-02-19", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-02-19", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-19", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-19", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-19", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-20", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-02-20", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-02-20", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-20", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-20", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-20", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-21", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-21", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-21", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-21", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-21", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-22", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-02-22", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "john.smeets@hu.nl", startdatum: "2019-02-22", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-02-22", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-22", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-22", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-25", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-25", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-02-25", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "john.smeets@hu.nl", startdatum: "2019-02-25", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-02-25", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-26", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-26", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "", startdatum: "2019-02-26", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-02-26", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-26", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-26", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-02-26", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-27", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-02-27", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-02-27", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-02-27", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-27", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-02-27", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-27", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-02-28", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-02-28", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-02-28", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-02-28", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-02-28", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-01", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-03-01", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "john.smeets@hu.nl", startdatum: "2019-03-01", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-03-01", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-01", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-01", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-04", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-03-04", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "john.smeets@hu.nl", startdatum: "2019-03-04", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-04", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-03-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-03-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "", startdatum: "2019-03-05", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-03-05", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-03-05", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-05", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-03-05", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-05", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-06", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-06", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-03-06", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-03-06", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-06", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-03-06", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-06", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-07", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-03-07", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-07", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-07", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-08", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-03-08", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "john.smeets@hu.nl", startdatum: "2019-03-08", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-03-08", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-08", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-08", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-11", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-03-11", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "john.smeets@hu.nl", startdatum: "2019-03-11", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-11", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-03-12", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-12", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "", startdatum: "2019-03-12", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-03-12", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-12", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-03-12", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-12", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-13", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "ellen.leutbecher@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-13", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-03-13", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-03-13", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-13", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-03-13", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-13", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-14", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "andre.donk@hu.nl", startdatum: "2019-03-14", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-03-14", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-03-14", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-14", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-14", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-03-15", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "john.smeets@hu.nl", startdatum: "2019-03-15", starttijd: "13:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-03-15", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-15", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-15", starttijd: "16:00", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-03-18", starttijd: "12:00", eindtijd: "14:00", vakcode: "TICT-V1OODC-15_V_TOETS1_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-18", starttijd: "14:30", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-03-19", starttijd: "09:00", eindtijd: "13:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-19", starttijd: "09:00", eindtijd: "13:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-03-19", starttijd: "09:00", eindtijd: "13:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-03-19", starttijd: "15:00", eindtijd: "17:00", vakcode: "TCIF-V1AUI-17_V_TOETS1_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-03-20", starttijd: "13:30", eindtijd: "15:00", vakcode: "TICT-V1ASK-18_V_TOETS1_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-03-20", starttijd: "15:30", eindtijd: "17:30", vakcode: "TICT-V1ASK-18_V_TOETS1_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-03-21", starttijd: "13:30", eindtijd: "15:30", vakcode: "TICT-V1MOD-15_V_TOETS2_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-03-22", starttijd: "13:30", eindtijd: "15:30", vakcode: "TICT-V1PTW-18_V_TOETS1_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-25", starttijd: "08:30", eindtijd: "11:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-03-25", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-03-25", starttijd: "14:30", eindtijd: "19:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-25", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-26", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-26", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-03-26", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-27", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-27", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-27", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-28", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-03-28", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-28", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-03-29", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-03-29", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-03-29", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-01", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-01", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-01", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-02", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-02", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-02", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-03", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-03", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-03", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-04", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-04", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-04", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-05", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-05", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-05", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-08", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-08", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-08", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-09", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-09", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-09", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-10", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-10", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.rothuis@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-10", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-11", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "peter.vanrooijen@hu.nl, wasim.alsaqaf@hu.nl", startdatum: "2019-04-11", starttijd: "09:00", eindtijd: "18:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl, jos.vanreenen@hu.nl, peter.schuler@hu.nl", startdatum: "2019-04-12", starttijd: "09:00", eindtijd: "18:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "tijmen.muller@hu.nl", startdatum: "2019-04-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-04-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-04-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-04-15", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "rik.boss@hu.nl", startdatum: "2019-04-15", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "rik.boss@hu.nl", startdatum: "2019-04-16", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-16", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-16", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "", startdatum: "2019-04-16", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "andre.donk@hu.nl", startdatum: "2019-04-16", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-16", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-04-17", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-04-17", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-04-17", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-04-17", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-17", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "tijmen.muller@hu.nl", startdatum: "2019-04-17", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-17", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-18", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-18", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "andre.donk@hu.nl", startdatum: "2019-04-18", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-04-18", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-18", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-04-18", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "rik.boss@hu.nl", startdatum: "2019-04-18", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-18", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-18", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "rik.boss@hu.nl", startdatum: "2019-04-23", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-23", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "tijmen.muller@hu.nl", startdatum: "2019-04-23", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "", startdatum: "2019-04-23", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-04-23", starttijd: "13:00", eindtijd: "15:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "andre.donk@hu.nl", startdatum: "2019-04-23", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-23", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-04-23", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-23", starttijd: "15:00", eindtijd: "16:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1D"}, {docent: "dietske.obbink@hu.nl, joost.vanstreels@hu.nl, jos.vanreenen@hu.nl", startdatum: "2019-04-23", starttijd: "16:00", eindtijd: "17:00", vakcode: "TICT-V1MOD-15_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-23", starttijd: "17:00", eindtijd: "18:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1B"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-04-24", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-04-24", starttijd: "09:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-24", starttijd: "10:00", eindtijd: "11:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "", startdatum: "2019-04-24", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-24", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-24", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "bart.vaneijkelenburg@hu.nl", startdatum: "2019-04-24", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "alex.rothuis@hu.nl", startdatum: "2019-04-24", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-24", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1B"}, {docent: "peter.vanrooijen@hu.nl", startdatum: "2019-04-24", starttijd: "16:00", eindtijd: "17:30", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "tijmen.muller@hu.nl", startdatum: "2019-04-24", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-24", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-25", starttijd: "09:30", eindtijd: "10:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1E"}, {docent: "Schuler Peter", startdatum: "2019-04-25", starttijd: "10:30", eindtijd: "12:00", vakcode: "TICT-V1GP-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "adrie.vandoesburg@hu.nl, tijmen.muller@hu.nl", startdatum: "2019-04-25", starttijd: "12:00", eindtijd: "13:00", vakcode: "TICT-V1ASK-18_2018", groepen: "TICT-AAI-V1A, TICT-AAI-V1B, TICT-BIM-V1A, TICT-BIM-V1B, TICT-BIM-V1C, TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E, TICT-SNE-V1A, TICT-SNE-V1B, TICT-SNE-V1C, TICT-SNE-V1D, TICT-TI-V1A, TICT-TI-V1B, TICT-TI-V1C"}, {docent: "andre.donk@hu.nl", startdatum: "2019-04-25", starttijd: "13:00", eindtijd: "15:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-25", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-04-25", starttijd: "13:30", eindtijd: "14:30", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1A"}, {docent: "berend.wilkens@hu.nl", startdatum: "2019-04-25", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1A"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-25", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1C"}, {docent: "dietske.obbink@hu.nl", startdatum: "2019-04-25", starttijd: "14:30", eindtijd: "16:00", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1D"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-25", starttijd: "16:00", eindtijd: "18:00", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "rik.boss@hu.nl", startdatum: "2019-04-25", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1A"}, {docent: "wasim.alsaqaf@hu.nl", startdatum: "2019-04-25", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "martijn.jansen@hu.nl", startdatum: "2019-04-25", starttijd: "16:00", eindtijd: "19:00", vakcode: "TICT-V1DP-15_2018", groepen: "TICT-SIE-V1D"}, {docent: "andre.donk@hu.nl", startdatum: "2019-04-26", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1B"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-26", starttijd: "08:30", eindtijd: "11:30", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1E"}, {docent: "Schuler Peter", startdatum: "2019-04-26", starttijd: "09:30", eindtijd: "11:30", vakcode: "TICT-V1OODC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "", startdatum: "2019-04-26", starttijd: "11:30", eindtijd: "13:00", vakcode: "TICT-NCASIE-18_2018", groepen: "TICT-SIE-V1A, TICT-SIE-V1B, TICT-SIE-V1C, TICT-SIE-V1D, TICT-SIE-V1E"}, {docent: "jos.vanreenen@hu.nl", startdatum: "2019-04-26", starttijd: "13:00", eindtijd: "14:30", vakcode: "TICT-V1IPASS-18_2018", groepen: "TICT-SIE-V1E"}, {docent: "alex.jongman@hu.nl", startdatum: "2019-04-26", starttijd: "13:00", eindtijd: "16:00", vakcode: "TICT-V1WAC-15_2018", groepen: "TICT-SIE-V1C"}, {docent: "john.smeets@hu.nl, sanne.veroude@hu.nl", startdatum: "2019-04-26", starttijd: "16:00", eindtijd: "17:00", vakcode: "TCIF-V1AUI-17_2018", groepen: "TICT-SIE-V1C"},
-                ]
-            },
-            rooster:{
-                type: Array,
-                notify: true,
-                value: null
-            },
-          naam:{
+        properties: {
+          lesCode:{
+            type: String
+          },
+          totaanwezig:{
+            type: String
+          },
+          aanwezigperc:{
+            type: String
+          },
+          afwezigperc:{
+            type: String
+          },
+          sizeAanwezig:{
+            type: String
+          },
+          sizeAfwezig:{
+            type: String
+          },
+          totafwezig:{
+            type: String
+          },
+          rooster: {
+            type: Array
+          },
+          c_leerlingen: {
+            type: Array
+          },
+          c_roosterDocent: {
+            type: Array
+          },
+          c_rol: {
             type: String,
-            value: "tijmen.muller@hu.nl",
-            notify: true
+          },
+          c_systeemdatum: {
+            type: String
+          },
+          c_username: {
+            type: String,
+          },
+          c_visible: {
+            type: Boolean,                                      /* true when element is the active visible item */
+            value: false,
+            observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                                                                   regel in de functie dat er niets gebeurd
+                                                                   als c_visible false is */
+          },
+        },
+
+     
+      _aanwezigheid_init(e){
+        console.log("[aanwezigheid init]")
+        console.log(e.target.getAttribute('data-args'));
+      },  
+      
+      _go_home: function() {
+          var lApp = document.querySelector('my-app');  //het polymer element <my-app>
+          var lAppRouter = lApp.$.approuter;            // het html-element <app-route> met id=approuter
+          lAppRouter.data={page: ""};                   // vul het data attribute met de homepage url
+                                                        // door de two way binding in <app-route> en <app-location>
+                                                        // zal ook de url echt wijzigen
+        },
+
+        // ROOSTER OPHALEN
+        
+        _initializing : function() {
+          if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="docent") {                     // voor studenten
+              this._rooster_ophalen_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
           }
-        };
-      },
-      loadHandler(){ 
-        this.rooster = this.lessen;
-        for (var i = this.rooster.length - 1; i >= 0; i--) {
-           if (this.rooster[i].docent.includes(", "))
-           {
-               var found = false;
-               var res = this.rooster[i].docent.split(", ");
-               for(var x = 0; x < res.length; x++)
-               {
-                  if (res[x] == this.naam) { found = true; break; }
-               }
-               if (found == false) 
-               {
-                  this.rooster.splice(i, 1);
-               } 
-           }
-           else
-           {
-              if (!(this.rooster[i].docent == this.naam)) {
-                  this.rooster.splice(i, 1);
+        },
+       
+        _rooster_ophalen_request_handler: function() {
+          this.$.ajax_rooster_docent_statistiek.contentType="application/json";
+          this.$.ajax_rooster_docent_statistiek.body={
+            "username":this.c_username,
+            "systeemdatum":this.c_systeemdatum
+          };
+          this.$.ajax_rooster_docent_statistiek.generateRequest();
+        },
+
+        _ophalen_rooster_response_handler: function(request) {
+          console.log("haal de JSON op.")
+          console.log(request.detail.response);
+          this.c_roosterDocent= request.detail.response;
+        },
+
+        // LEERLIGNEN OPHALEN
+
+        _ophalen_leerlingen_initializing : function() {
+          console.log("[init leerlingen ophalen] ");
+          if (this.c_visible) {                             // zodra zichtbaar geworden moet er wat worden gedaan
+            if (this.c_rol=="docent") {                     // voor studenten
+              this._leerlingen_ophalen_request_handler();    //    haal info op van server
+          } else {                                            // na handmatige url wijziging zonder login
+              var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep                                  /* het sluiten van deze error verwijst  */
+                                                                /* terug naar home page */
+            }
+          }
+        },
+        _leerlingen_ophalen_request_handler : function(e) {
+           var item = e.model.les;
+
+           this.$.ajax_lijst_leerlingen.contentType="application/json";
+           this.$.ajax_lijst_leerlingen.body={
+             "vak": item.vak,
+             "klas": item.klas,
+             "datum": item.datum
+           };
+          console.log( this.$.ajax_lijst_leerlingen.body);
+          this.$.ajax_lijst_leerlingen.generateRequest();
+        },
+        _krijg_rooster : function() {
+          if (this.rooster == null) {
+            console.log(this.rooster);
+              this.rooster = this.c_roosterDocent;
+              for (var i = this.rooster.length - 1; i >= 0; i--) {
+                  //if (!(this.rooster[i].docent == this.naam)) {
+                  //    this.rooster.splice(i, 1);
+                  //}
+              }
+          }
+          else {
+              window.alert("Al uw lessen zijn al ingeladen.");
+          }
+        },
+
+        _ophalen_leerlingen_response_handler: function(request) {
+          console.log("haal de JSON op.")
+          this.c_leerlingen= request.detail.response;
+          console.log(this.c_leerlingen);
+          this._get_statistiek(); 
+        },
+
+        _get_statistiek : function() {
+           var aanwezig = 0;
+           for (var i = this.c_leerlingen.length - 1; i >= 0; i--) {
+              if (this.c_leerlingen[i].aanwezigheid == "Aanwezig") {
+                  aanwezig += 1;
               }
            }
+           this.totaanwezig = aanwezig;
+           this.totafwezig = (this.c_leerlingen.length - aanwezig);
+           var total = this.totaanwezig + this.totafwezig;
+           var percaanwezig = (this.totaanwezig / total) * 100;
+           var percafwezig = (this.totafwezig / total) * 100;
+           var grootte = 650;
+           this.sizeAanwezig = "padding-right: " + ((grootte / 100) * percaanwezig) + "px;";
+           this.sizeAfwezig = "padding-right: " + ((grootte / 100) * percafwezig)+ "px;";
+           this.aanwezigperc = percaanwezig;
+           this.afwezigperc = percafwezig;
+           console.log("Aanwezig: " + aanwezig + " - Afwezig: " + (this.c_leerlingen.length - aanwezig));
+        },
+
+        //_------------------------------------------------------------------------------
+        
+        _toast_clicked: function(e) {
+         var lToast = this.$.toast_invalid_aanroep;        // meldt ongeldige aanroep
+         lToast.toggle();
+         this._go_home();
         }
-        this.push("rooster", null);
-        this.pop("rooster");
-      },
 
       });
     })();

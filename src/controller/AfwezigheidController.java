@@ -47,7 +47,7 @@ public class AfwezigheidController implements Handler {
 				///De les ophalen en vervolgens de functie afwezigToevoegen gebruiken om de ingelogde student toe te voegen
 				Les deLes = hetRooster.getLesByInfo(klas, naam, datum);
 				deLes.afwezigToevoegen(lStudentZelf);
-				System.out.println("Op afwezig gezet!");
+				System.out.println("[AfwezigheidsController] Op afwezig gezet!");
 			}
 			if(lesInfo.getString("aanwezigheid").equals("true")) {
 				String klas = lesInfo.getString("klas");
@@ -58,7 +58,7 @@ public class AfwezigheidController implements Handler {
 				Les deLes = hetRooster.getLesByInfo(klas, naam, datum);
 				if(deLes.getAfwezigen().contains(lStudentZelf)) {
 					deLes.afwezigVerwijderen(lStudentZelf);
-					System.out.println("Op aanwezig gezet!");
+					System.out.println("[AfwezigheidsController] Op aanwezig gezet!");
 				}
 			}
 		}	
