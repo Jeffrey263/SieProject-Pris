@@ -251,12 +251,18 @@
           this.$.ajax_lijst_leerlingen.generateRequest();
         },
         _krijg_rooster : function() {
-           this.rooster = this.c_roosterDocent;
-           for (var i = this.rooster.length - 1; i >= 0; i--) {
-              //if (!(this.rooster[i].docent == this.naam)) {
-              //    this.rooster.splice(i, 1);
-              //}
-           }
+          if (this.rooster == null) {
+            console.log(this.rooster);
+              this.rooster = this.c_roosterDocent;
+              for (var i = this.rooster.length - 1; i >= 0; i--) {
+                  //if (!(this.rooster[i].docent == this.naam)) {
+                  //    this.rooster.splice(i, 1);
+                  //}
+              }
+          }
+          else {
+              window.alert("Al uw lessen zijn al ingeladen.");
+          }
         },
 
         _ophalen_leerlingen_response_handler: function(request) {
